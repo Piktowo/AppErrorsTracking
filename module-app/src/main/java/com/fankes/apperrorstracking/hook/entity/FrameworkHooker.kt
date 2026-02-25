@@ -93,6 +93,26 @@ object FrameworkHooker : YukiBaseHooker() {
     /** 已忽略错误的 APP 数组 - 直到重新启动 */
     private var mutedErrorsIfRestartApps = mutableSetOf<String>()
 
+    /** 最近弹窗去重缓存 (避免多路径 Hook 触发重复弹窗) */
+    private val recentUiEvents = LinkedHashMap<String, Long>()
+
+    /** 通知小图标缓存，避免每次崩溃都重新 Bitmap 转换 */
+    private var cachedNotifyIcon: IconCompat? = null
+
+    /**
+     * 当前崩溃事件是否可展示 UI
+     * @param token 事件标识
+     * @return [Boolean]
+     */
+    private fun shouldDispatchUiEvent(token: String): Boolean = synchronized(recentUiEvents) {
+        val now = SystemClock.elapsedRealtime()
+        recentUiEvents.entries.removeAll { now - it.value > 2500L }
+        if (recentUiEvents.containsKey(token)) false else {
+            recentUiEvents[token] = now
+            true
+        }
+    }
+
     /**
      * APP 进程异常数据定义类
      * @param errors [AppErrorsClass] 实例
@@ -323,6 +343,7 @@ object FrameworkHooker : YukiBaseHooker() {
      * @param context 当前实例
      */
     private fun AppErrorsProcessData.handleShowAppErrorUi(context: Context) {
+        if (!shouldDispatchUiEvent("$pid|$userId|$processName")) return
         /** 当前 APP 名称 */
         val appName = appInfo?.let { context.appNameOf(it.packageName).ifBlank { it.packageName } } ?: packageName
 
@@ -331,6 +352,7 @@ object FrameworkHooker : YukiBaseHooker() {
 
         /** 崩溃标题 */
         val errorTitle = if (isRepeatingCrash) locale.aerrRepeatedTitle(appNameWithUserId) else locale.aerrTitle(appNameWithUserId)
+        val canOpenApp = context.isAppCanOpened(packageName)
 
         /** 使用通知推送异常信息 */
         fun showAppErrorsWithNotify() =
@@ -339,7 +361,9 @@ object FrameworkHooker : YukiBaseHooker() {
                 channelName = locale.appName,
                 title = errorTitle,
                 content = locale.appErrorsTip,
-                icon = IconCompat.createWithBitmap(moduleAppResources.drawableOf(R.drawable.ic_notify).toBitmap()),
+                icon = cachedNotifyIcon ?: IconCompat.createWithBitmap(moduleAppResources.drawableOf(R.drawable.ic_notify).toBitmap()).also {
+                    cachedNotifyIcon = it
+                },
                 color = 0xFFFF6200.toInt(),
                 intent = AppErrorsRecordActivity.intent()
             )
@@ -360,7 +384,7 @@ object FrameworkHooker : YukiBaseHooker() {
                     isShowAppInfoButton = isActualApp,
                     isShowReopenButton = isActualApp &&
                         (isRepeatingCrash.not() || ConfigData.isEnableAlwaysShowsReopenAppOptions) &&
-                        context.isAppCanOpened(packageName) &&
+                        canOpenApp &&
                         isMainProcess,
                     isShowCloseAppButton = isActualApp
                 )
@@ -368,7 +392,7 @@ object FrameworkHooker : YukiBaseHooker() {
         /** 判断是否为已忽略的 APP */
         if (mutedErrorsIfUnlockApps.contains(packageName) || mutedErrorsIfRestartApps.contains(packageName)) return
         /** 判断是否为后台进程 */
-        if ((isBackgroundProcess || context.isAppCanOpened(packageName).not()) && ConfigData.isEnableOnlyShowErrorsInFront) return
+        if ((isBackgroundProcess || canOpenApp.not()) && ConfigData.isEnableOnlyShowErrorsInFront) return
         /** 判断是否为主进程 */
         if (isMainProcess.not() && ConfigData.isEnableOnlyShowErrorsInMain) return
         when {
@@ -444,7 +468,18 @@ object FrameworkHooker : YukiBaseHooker() {
             firstMethodOrNull {
                 name = "onCreate"
                 parameters(Bundle::class)
-            }?.hook()?.after { instance<Dialog>().cancel() }
+            }?.hook()?.after {
+                val dialog = instance<Dialog>()
+                val resultData = AppErrorDialogClass.resolve().optional(silent = true).firstFieldOrNull {
+                    name { it.equals("mData", true) || it.endsWith("Data", true) }
+                }?.of(dialog)?.get()
+                val proc = resultData?.let {
+                    AppErrorDialog_DataClass.resolve().optional().firstFieldOrNull { name = "proc" }?.of(it)?.get()
+                }
+                val context = dialog.context
+                AppErrorsProcessData(errors = null, proc = proc, resultData = resultData).handleShowAppErrorUi(context)
+                dialog.cancel()
+            }
             firstMethodOrNull {
                 name = "onStart"
                 emptyParameters()

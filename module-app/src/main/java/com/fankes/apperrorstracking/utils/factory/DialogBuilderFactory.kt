@@ -81,6 +81,9 @@ class DialogBuilder<VB : ViewBinding>(
     /** 对话框取消监听 */
     private var onCancel: (() -> Unit)? = null
 
+    /** 对话框显示监听 */
+    private var onShow: ((Dialog) -> Unit)? = null
+
     /** 对话框实例 */
     private var dialogInstance: Dialog? = null
 
@@ -186,6 +189,14 @@ class DialogBuilder<VB : ViewBinding>(
         onCancel = callback
     }
 
+    /**
+     * 当对话框显示时
+     * @param callback 回调
+     */
+    fun onShow(callback: Dialog.() -> Unit) {
+        onShow = { dialog -> callback(dialog) }
+    }
+
     /** 取消对话框 */
     fun cancel() = dialogInstance?.cancel()
 
@@ -198,8 +209,8 @@ class DialogBuilder<VB : ViewBinding>(
                 customLayoutView?.let { setView(it) }
                 dialogInstance = this
                 setOnCancelListener { onCancel?.invoke() }
-                if (ConfigData.isEnablePreventMisoperation) {
-                    setOnShowListener {
+                setOnShowListener {
+                    if (ConfigData.isEnablePreventMisoperation) {
                         window?.run {
                             addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
                             mainHandler.postDelayed(1000) {
@@ -207,6 +218,7 @@ class DialogBuilder<VB : ViewBinding>(
                             }
                         }
                     }
+                    onShow?.invoke(this)
                 }
             }?.show()
         }

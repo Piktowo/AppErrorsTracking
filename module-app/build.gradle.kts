@@ -72,7 +72,6 @@ dependencies {
     implementation(libs.kavaref.core)
     implementation(libs.kavaref.extension)
     implementation(libs.betterandroid.ui.extension)
-    implementation(libs.project.promote)
     implementation(libs.microsoft.appcenter.analytics)
     implementation(libs.microsoft.appcenter.crashes)
     implementation(libs.libsu)
