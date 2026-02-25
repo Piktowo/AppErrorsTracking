@@ -1,7 +1,7 @@
 /*
  * AppErrorsTracking - Added more features to app's crash dialog, fixed custom rom deleted dialog, the best experience to Android developer.
  * Copyright (C) 2017 Fankes Studio(qzmmcn@163.com)
- * https://github.com/KitsunePie/AppErrorsTracking
+ * https://github.com/Piktowo/AppErrorsTracking
  *
  * This software is non-free but opensource software: you can redistribute it
  * and/or modify it under the terms of the GNU Affero General Public License
@@ -99,6 +99,9 @@ object FrameworkHooker : YukiBaseHooker() {
     /** 通知小图标缓存，避免每次崩溃都重新 Bitmap 转换 */
     private var cachedNotifyIcon: IconCompat? = null
 
+    /** UI 分发类型 */
+    private enum class ErrorUiMode { DIALOG, NOTIFY, TOAST, NONE }
+
     /**
      * 当前崩溃事件是否可展示 UI
      * @param token 事件标识
@@ -111,6 +114,11 @@ object FrameworkHooker : YukiBaseHooker() {
             recentUiEvents[token] = now
             true
         }
+    }
+
+    /** 仅在开启调试开关时打印分发日志 */
+    private inline fun verboseLog(message: () -> String) {
+        if (ConfigData.isEnableVerboseCrashDispatchLog) YLog.debug("[CrashDispatch] ${message()}")
     }
 
     /**
@@ -343,7 +351,11 @@ object FrameworkHooker : YukiBaseHooker() {
      * @param context 当前实例
      */
     private fun AppErrorsProcessData.handleShowAppErrorUi(context: Context) {
-        if (!shouldDispatchUiEvent("$pid|$userId|$processName")) return
+        val eventToken = "$pid|$userId|$processName"
+        if (!shouldDispatchUiEvent(eventToken)) {
+            verboseLog { "Skip duplicated event token=$eventToken package=$packageName process=$processName" }
+            return
+        }
         /** 当前 APP 名称 */
         val appName = appInfo?.let { context.appNameOf(it.packageName).ifBlank { it.packageName } } ?: packageName
 
@@ -353,9 +365,14 @@ object FrameworkHooker : YukiBaseHooker() {
         /** 崩溃标题 */
         val errorTitle = if (isRepeatingCrash) locale.aerrRepeatedTitle(appNameWithUserId) else locale.aerrTitle(appNameWithUserId)
         val canOpenApp = context.isAppCanOpened(packageName)
+        verboseLog {
+            "Received crash package=$packageName process=$processName pid=$pid user=$userId " +
+                "actual=$isActualApp main=$isMainProcess bg=$isBackgroundProcess repeating=$isRepeatingCrash canOpen=$canOpenApp"
+        }
 
         /** 使用通知推送异常信息 */
-        fun showAppErrorsWithNotify() =
+        fun showAppErrorsWithNotify() {
+            verboseLog { "Dispatch UI mode=NOTIFY package=$packageName" }
             context.pushNotify(
                 channelId = "APPS_ERRORS",
                 channelName = locale.appName,
@@ -367,13 +384,18 @@ object FrameworkHooker : YukiBaseHooker() {
                 color = 0xFFFF6200.toInt(),
                 intent = AppErrorsRecordActivity.intent()
             )
+        }
 
         /** 使用 Toast 展示异常信息 */
-        fun showAppErrorsWithToast() = context.toast(errorTitle)
+        fun showAppErrorsWithToast() {
+            verboseLog { "Dispatch UI mode=TOAST package=$packageName" }
+            context.toast(errorTitle)
+        }
 
         /** 使用对话框展示异常信息 */
-        fun showAppErrorsWithDialog() =
-            AppErrorsDisplayActivity.start(
+        fun showAppErrorsWithDialog() {
+            verboseLog { "Dispatch UI mode=DIALOG package=$packageName" }
+            val isLaunched = AppErrorsDisplayActivity.start(
                 context, AppErrorsDisplayBean(
                     pid = pid,
                     userId = userId,
@@ -389,31 +411,56 @@ object FrameworkHooker : YukiBaseHooker() {
                     isShowCloseAppButton = isActualApp
                 )
             )
-        /** 判断是否为已忽略的 APP */
-        if (mutedErrorsIfUnlockApps.contains(packageName) || mutedErrorsIfRestartApps.contains(packageName)) return
-        /** 判断是否为后台进程 */
-        if ((isBackgroundProcess || canOpenApp.not()) && ConfigData.isEnableOnlyShowErrorsInFront) return
-        /** 判断是否为主进程 */
-        if (isMainProcess.not() && ConfigData.isEnableOnlyShowErrorsInMain) return
-        when {
-            packageName == BuildConfigWrapper.APPLICATION_ID -> {
-                context.toast(msg = "AppErrorsTracking has crashed, please see the log in console")
-                YLog.error("AppErrorsTracking has crashed itself, please see the Android Runtime Exception in console")
+            if (isLaunched.not()) {
+                verboseLog { "Dialog launch failed, fallback to NOTIFY package=$packageName" }
+                showAppErrorsWithNotify()
             }
+        }
+
+        fun resolveUiMode(): ErrorUiMode = when {
+            packageName == BuildConfigWrapper.APPLICATION_ID -> ErrorUiMode.NONE
             ConfigData.isEnableAppConfigTemplate -> when {
                 AppErrorsConfigData.isAppShowingType(AppErrorsConfigType.GLOBAL, packageName) -> when {
-                    AppErrorsConfigData.isAppShowingType(AppErrorsConfigType.DIALOG) -> showAppErrorsWithDialog()
-                    AppErrorsConfigData.isAppShowingType(AppErrorsConfigType.NOTIFY) -> showAppErrorsWithNotify()
-                    AppErrorsConfigData.isAppShowingType(AppErrorsConfigType.TOAST) -> showAppErrorsWithToast()
-                    AppErrorsConfigData.isAppShowingType(AppErrorsConfigType.NOTHING) -> {}
+                    AppErrorsConfigData.isAppShowingType(AppErrorsConfigType.DIALOG) -> ErrorUiMode.DIALOG
+                    AppErrorsConfigData.isAppShowingType(AppErrorsConfigType.NOTIFY) -> ErrorUiMode.NOTIFY
+                    AppErrorsConfigData.isAppShowingType(AppErrorsConfigType.TOAST) -> ErrorUiMode.TOAST
+                    else -> ErrorUiMode.NONE
                 }
-                AppErrorsConfigData.isAppShowingType(AppErrorsConfigType.DIALOG, packageName) -> showAppErrorsWithDialog()
-                AppErrorsConfigData.isAppShowingType(AppErrorsConfigType.NOTIFY, packageName) -> showAppErrorsWithNotify()
-                AppErrorsConfigData.isAppShowingType(AppErrorsConfigType.TOAST, packageName) -> showAppErrorsWithToast()
-                AppErrorsConfigData.isAppShowingType(AppErrorsConfigType.NOTHING, packageName) -> {}
+                AppErrorsConfigData.isAppShowingType(AppErrorsConfigType.DIALOG, packageName) -> ErrorUiMode.DIALOG
+                AppErrorsConfigData.isAppShowingType(AppErrorsConfigType.NOTIFY, packageName) -> ErrorUiMode.NOTIFY
+                AppErrorsConfigData.isAppShowingType(AppErrorsConfigType.TOAST, packageName) -> ErrorUiMode.TOAST
+                else -> ErrorUiMode.NONE
             }
-            else -> showAppErrorsWithDialog()
+            else -> ErrorUiMode.DIALOG
+        /** 判断是否为已忽略的 APP */
         }
+        if (mutedErrorsIfUnlockApps.contains(packageName) || mutedErrorsIfRestartApps.contains(packageName)) {
+            verboseLog { "Skip UI due to muted package=$packageName" }
+            return
+        }
+        /** 判断是否为后台进程 */
+        if ((isBackgroundProcess || canOpenApp.not()) && ConfigData.isEnableOnlyShowErrorsInFront) {
+            verboseLog { "Skip UI due to front-only policy package=$packageName bg=$isBackgroundProcess canOpen=$canOpenApp" }
+            return
+        }
+        /** 判断是否为主进程 */
+        if (isMainProcess.not() && ConfigData.isEnableOnlyShowErrorsInMain) {
+            verboseLog { "Skip UI due to main-process-only policy package=$packageName process=$processName" }
+            return
+        }
+        val mode = resolveUiMode()
+        when (mode) {
+            ErrorUiMode.DIALOG -> showAppErrorsWithDialog()
+            ErrorUiMode.NOTIFY -> showAppErrorsWithNotify()
+            ErrorUiMode.TOAST -> showAppErrorsWithToast()
+            ErrorUiMode.NONE -> {
+                if (packageName == BuildConfigWrapper.APPLICATION_ID) {
+                    context.toast(msg = "AppErrorsTracking has crashed, please see the log in console")
+                    YLog.error("AppErrorsTracking has crashed itself, please see the Android Runtime Exception in console")
+                } else verboseLog { "Skip UI due to mode=NONE package=$packageName" }
+            }
+        }
+        verboseLog { "Finish dispatch mode=${mode.name} package=$packageName" }
         /** 打印错误日志 */
         if (isActualApp) YLog.error(
             msg = "Application \"$packageName\" ${if (isRepeatingCrash) "keeps stopping" else "has stopped"}" +
@@ -432,10 +479,8 @@ object FrameworkHooker : YukiBaseHooker() {
         YLog.info("Received crash application data${if (userId != 0) " --user $userId" else ""} --pid $pid")
     }
 
-    override fun onHook() {
-        /** 注册生命周期 */
-        registerLifecycle()
-        /** 干掉原生错误对话框 - 如果有 */
+    /** 干掉系统原生弹窗并在必要时兜底转发到自定义弹窗 */
+    private fun registerSystemDialogSuppressionHooks() {
         ErrorDialogControllerClass?.resolve()?.optional(silent = true)?.apply {
             val hasCrashDialogs = firstMethodOrNull {
                 name = "hasCrashDialogs"
@@ -452,7 +497,6 @@ object FrameworkHooker : YukiBaseHooker() {
                 parameterCount = 1
             }?.hook()?.intercept()
         }
-        /** 干掉原生错误对话框 - API 30 以下 */
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
             ActivityTaskManagerService_LocalServiceClass?.resolve()?.optional()?.firstMethodOrNull {
                 name = "canShowErrorDialogs"
@@ -463,21 +507,20 @@ object FrameworkHooker : YukiBaseHooker() {
                 emptyParameters()
             }?.hook()?.replaceToFalse()
         }
-        /** 干掉原生错误对话框 - 如果上述方法全部失效则直接结束对话框 */
         AppErrorDialogClass.resolve().optional(silent = true).apply {
             firstMethodOrNull {
                 name = "onCreate"
                 parameters(Bundle::class)
             }?.hook()?.after {
                 val dialog = instance<Dialog>()
+                verboseLog { "Fallback intercept AppErrorDialog.onCreate" }
                 val resultData = AppErrorDialogClass.resolve().optional(silent = true).firstFieldOrNull {
                     name { it.equals("mData", true) || it.endsWith("Data", true) }
                 }?.of(dialog)?.get()
                 val proc = resultData?.let {
                     AppErrorDialog_DataClass.resolve().optional().firstFieldOrNull { name = "proc" }?.of(it)?.get()
                 }
-                val context = dialog.context
-                AppErrorsProcessData(errors = null, proc = proc, resultData = resultData).handleShowAppErrorUi(context)
+                AppErrorsProcessData(errors = null, proc = proc, resultData = resultData).handleShowAppErrorUi(dialog.context)
                 dialog.cancel()
             }
             firstMethodOrNull {
@@ -485,7 +528,10 @@ object FrameworkHooker : YukiBaseHooker() {
                 emptyParameters()
             }?.hook()?.after { instance<Dialog>().cancel() }
         }
-        /** 注入自定义错误对话框 */
+    }
+
+    /** 注入崩溃分发逻辑 */
+    private fun registerCrashDispatchHooks() {
         AppErrorsClass.resolve().optional().apply {
             when {
                 Build.VERSION.SDK_INT > Build.VERSION_CODES.R -> {
@@ -493,17 +539,14 @@ object FrameworkHooker : YukiBaseHooker() {
                         name = "handleAppCrashLSPB"
                         parameterCount = 6
                     }?.hook()?.after {
-                        /** 如果为用户终止则不展示异常 */
-                        if (args(index = 1).string() == "user-terminated") return@after
-                        /** 当前实例 */
+                        if (args(index = 1).string() == "user-terminated") {
+                            verboseLog { "Ignore user-terminated crash event" }
+                            return@after
+                        }
                         val context = appContext ?: firstFieldOrNull { name = "mContext" }?.of(instance)?.get<Context>() ?: return@after
-
-                        /** 当前进程信息 */
                         val proc = args().first().any() ?: return@after YLog.warn("Received but got null ProcessRecord (Show UI failed)")
-
-                        /** 当前错误数据 */
                         val resultData = args().last().any()
-                        /** 创建 APP 进程异常数据类 */
+                        verboseLog { "Hit hook handleAppCrashLSPB" }
                         AppErrorsProcessData(instance, proc, resultData).handleShowAppErrorUi(context)
                     }
                 }
@@ -512,15 +555,10 @@ object FrameworkHooker : YukiBaseHooker() {
                         name = "handleShowAppErrorUi"
                         parameters(Message::class)
                     }?.hook()?.after {
-                        /** 当前实例 */
                         val context = appContext ?: firstFieldOrNull { name = "mContext" }?.of(instance)?.get<Context>() ?: return@after
-
-                        /** 当前错误数据 */
                         val resultData = args().first().cast<Message>()?.obj
-
-                        /** 当前进程信息 */
                         val proc = AppErrorDialog_DataClass.resolve().optional().firstFieldOrNull { name = "proc" }?.of(resultData)?.get()
-                        /** 创建 APP 进程异常数据类 */
+                        verboseLog { "Hit hook handleShowAppErrorUi" }
                         AppErrorsProcessData(instance, proc, resultData).handleShowAppErrorUi(context)
                     }
                 }
@@ -529,14 +567,20 @@ object FrameworkHooker : YukiBaseHooker() {
                 name = "handleAppCrashInActivityController"
                 returnType = Boolean::class
             }?.hook()?.after {
-                /** 当前实例 */
                 val context = appContext ?: firstFieldOrNull { name = "mContext" }?.of(instance)?.get<Context>() ?: return@after
-
-                /** 当前进程信息 */
                 val proc = args().first().any() ?: return@after YLog.warn("Received but got null ProcessRecord")
-                /** 创建 APP 进程异常数据类 */
-                AppErrorsProcessData(instance, proc).handleAppErrorsInfo(context, args(index = 1).cast())
+                verboseLog { "Hit hook handleAppCrashInActivityController" }
+                AppErrorsProcessData(instance, proc).apply {
+                    handleAppErrorsInfo(context, args(index = 1).cast())
+                    handleShowAppErrorUi(context)
+                }
             }
         }
+    }
+
+    override fun onHook() {
+        registerLifecycle()
+        registerSystemDialogSuppressionHooks()
+        registerCrashDispatchHooks()
     }
 }

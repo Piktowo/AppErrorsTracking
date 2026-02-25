@@ -1,7 +1,7 @@
 /*
  * AppErrorsTracking - Added more features to app's crash dialog, fixed custom rom deleted dialog, the best experience to Android developer.
  * Copyright (C) 2017 Fankes Studio(qzmmcn@163.com)
- * https://github.com/KitsunePie/AppErrorsTracking
+ * https://github.com/Piktowo/AppErrorsTracking
  *
  * This software is non-free but opensource software: you can redistribute it
  * and/or modify it under the terms of the GNU Affero General Public License
@@ -37,7 +37,6 @@ import com.fankes.apperrorstracking.ui.activity.errors.AppErrorsMutedActivity
 import com.fankes.apperrorstracking.ui.activity.errors.AppErrorsRecordActivity
 import com.fankes.apperrorstracking.utils.factory.hideOrShowLauncherIcon
 import com.fankes.apperrorstracking.utils.factory.isLauncherIconShowing
-import com.fankes.apperrorstracking.utils.factory.isSystemLanguageSimplifiedChinese
 import com.fankes.apperrorstracking.utils.factory.navigate
 import com.fankes.apperrorstracking.utils.factory.openBrowser
 import com.fankes.apperrorstracking.utils.factory.showDialog
@@ -46,7 +45,6 @@ import com.fankes.apperrorstracking.utils.tool.AppAnalyticsTool
 import com.fankes.apperrorstracking.utils.tool.AppAnalyticsTool.bindAppAnalytics
 import com.fankes.apperrorstracking.utils.tool.FrameworkTool
 import com.fankes.apperrorstracking.utils.tool.GithubReleaseTool
-import com.highcapable.betterandroid.ui.extension.view.isUnderline
 import com.highcapable.yukihookapi.YukiHookAPI
 
 class MainActivity : BaseActivity<ActivityMainBinding>() {
@@ -103,7 +101,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             onChanged { reinitialize() }
         }
         binding.errorsDialogPreventMisoperationSwitch.bind(ConfigData.ENABLE_PREVENT_MISOPERATION_FOR_DIALOG)
+        binding.verboseCrashDispatchLogSwitch.bind(ConfigData.ENABLE_VERBOSE_CRASH_DISPATCH_LOG)
         binding.enableMaterial3AppErrorsDialogSwitch.bind(ConfigData.ENABLE_MATERIAL3_STYLE_APP_ERRORS_DIALOG)
+        binding.advancedSettingsToggleText.text = locale.showAdvancedSettings
+        binding.advancedSettingsToggleText.setOnClickListener {
+            val isVisible = binding.advancedSettingsContainer.isVisible.not()
+            binding.advancedSettingsContainer.isVisible = isVisible
+            binding.advancedSettingsToggleText.text = if (isVisible) locale.hideAdvancedSettings else locale.showAdvancedSettings
+        }
         /** 设置匿名统计 */
         binding.appAnalyticsConfigItem.isVisible = AppAnalyticsTool.isAvailable
         binding.enableAnonymousStatisticsSwitch.bindAppAnalytics()
@@ -125,13 +130,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         /** 重启按钮点击事件 */
         binding.titleRestartIcon.setOnClickListener { FrameworkTool.restartSystem(context = this) }
         /** 项目地址按钮点击事件 */
-        binding.titleGithubIcon.setOnClickListener { openBrowser(url = "https://github.com/KitsunePie/AppErrorsTracking") }
-        /** 恰饭！ */
-        binding.paymentFollowingZhCnItem.isVisible = isSystemLanguageSimplifiedChinese
-        binding.linkWithFollowMe.isUnderline = true
-        binding.linkWithFollowMe.setOnClickListener {
-            openBrowser(url = "https://www.coolapk.com/u/876977", packageName = "com.coolapk.market")
-        }
+        binding.titleGithubIcon.setOnClickListener { openBrowser(url = "https://github.com/Piktowo/AppErrorsTracking") }
         /** 设置桌面图标显示隐藏 */
         binding.hideIconInLauncherSwitch.isChecked = isLauncherIconShowing.not()
         binding.hideIconInLauncherSwitch.setOnCheckedChangeListener { btn, b ->

@@ -1,7 +1,7 @@
 /*
  * AppErrorsTracking - Added more features to app's crash dialog, fixed custom rom deleted dialog, the best experience to Android developer.
  * Copyright (C) 2017 Fankes Studio(qzmmcn@163.com)
- * https://github.com/KitsunePie/AppErrorsTracking
+ * https://github.com/Piktowo/AppErrorsTracking
  *
  * This software is non-free but opensource software: you can redistribute it
  * and/or modify it under the terms of the GNU Affero General Public License
@@ -41,6 +41,7 @@ import com.fankes.apperrorstracking.utils.factory.appIconOf
 import com.fankes.apperrorstracking.utils.factory.appNameOf
 import com.fankes.apperrorstracking.utils.factory.copyToClipboard
 import com.fankes.apperrorstracking.utils.factory.dp
+import com.fankes.apperrorstracking.utils.factory.feedback
 import com.fankes.apperrorstracking.utils.factory.getSerializableExtraCompat
 import com.fankes.apperrorstracking.utils.factory.navigate
 import com.fankes.apperrorstracking.utils.factory.openSelfSetting
@@ -85,6 +86,12 @@ class AppErrorsDetailActivity : BaseActivity<ActivityAppErrorsDetailBinding>() {
                 resetScrollView()
             }
         }
+        binding.stackTraceToggleText.text = locale.hideStackTrace
+        binding.stackTraceToggleText.setOnClickListener {
+            val isVisible = binding.stackTraceContainer.isVisible.not()
+            binding.stackTraceContainer.isVisible = isVisible
+            binding.stackTraceToggleText.text = if (isVisible) locale.hideStackTrace else locale.showStackTrace
+        }
         binding.detailTitleText.setOnClickListener { binding.appPanelScrollView.smoothScrollTo(0, 0) }
         resetScrollView()
     }
@@ -122,7 +129,7 @@ class AppErrorsDetailActivity : BaseActivity<ActivityAppErrorsDetailBinding>() {
         binding.appInfoItem.setOnClickListener { openSelfSetting(appErrorsInfo.packageName) }
         binding.printIcon.setOnClickListener {
             loggerE(msg = appErrorsInfo.stackTrace)
-            toast(locale.printToLogcatSuccess)
+            feedback(locale.printToLogcatSuccess)
         }
         binding.copyIcon.setOnClickListener {
             StackTraceShareHelper.showChoose(context = this, locale.copyErrorStack) { sDeviceBrand, sDeviceModel, sDisplay, sPackageName ->
@@ -154,7 +161,7 @@ class AppErrorsDetailActivity : BaseActivity<ActivityAppErrorsDetailBinding>() {
                             file.writeText(content)
                             putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(this@AppErrorsDetailActivity, "$packageName.provider", file))
                         }.onFailure {
-                            toast(msg = "Create temp file failed")
+                            feedback(msg = "Create temp file failed")
                         }
                     } else {
                         type = "text/plain"
@@ -180,6 +187,8 @@ class AppErrorsDetailActivity : BaseActivity<ActivityAppErrorsDetailBinding>() {
         binding.errorThrowMethodText.text = appErrorsInfo.throwMethodName
         binding.errorLineNumberText.text = appErrorsInfo.throwLineNumber.toString()
         binding.errorRecordTimeText.text = appErrorsInfo.dateTime
+        binding.errorSummaryText.text =
+            "${appErrorsInfo.exceptionClassName}  |  ${appErrorsInfo.throwFileName}:${appErrorsInfo.throwLineNumber}  |  ${appErrorsInfo.dateTime}"
         binding.errorStackTraceMovableText.text = appErrorsInfo.stackTrace
         binding.errorStackTraceFixedText.text = appErrorsInfo.stackTrace
         binding.appPanelScrollView.setOnScrollChangeListener { _, _, y, _, _ ->
@@ -203,9 +212,9 @@ class AppErrorsDetailActivity : BaseActivity<ActivityAppErrorsDetailBinding>() {
         if (requestCode == WRITE_REQUEST_CODE && resultCode == Activity.RESULT_OK) runCatching {
             data?.data?.let {
                 contentResolver?.openOutputStream(it)?.apply { write(stackTrace.toByteArray()) }?.close()
-                toast(locale.outputStackSuccess)
-            } ?: toast(locale.outputStackFail)
-        }.onFailure { toast(locale.outputStackFail) }
+                feedback(locale.outputStackSuccess)
+            } ?: feedback(locale.outputStackFail)
+        }.onFailure { feedback(locale.outputStackFail) }
     }
 
     override fun onBackPressed() {

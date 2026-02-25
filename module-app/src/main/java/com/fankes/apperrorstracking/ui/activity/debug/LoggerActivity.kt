@@ -1,7 +1,7 @@
 /*
  * AppErrorsTracking - Added more features to app's crash dialog, fixed custom rom deleted dialog, the best experience to Android developer.
  * Copyright (C) 2017 Fankes Studio(qzmmcn@163.com)
- * https://github.com/KitsunePie/AppErrorsTracking
+ * https://github.com/Piktowo/AppErrorsTracking
  *
  * This software is non-free but opensource software: you can redistribute it
  * and/or modify it under the terms of the GNU Affero General Public License
@@ -99,6 +99,8 @@ class LoggerActivity : BaseActivity<ActivitiyLoggerBinding>() {
         }
         /** 设置列表元素和 Adapter */
         binding.listView.apply {
+            isFastScrollEnabled = true
+            isSmoothScrollbarEnabled = true
             bindAdapter {
                 onBindDatas { listData }
                 onBindViews<AdapterLoggerBinding> { binding, position ->
