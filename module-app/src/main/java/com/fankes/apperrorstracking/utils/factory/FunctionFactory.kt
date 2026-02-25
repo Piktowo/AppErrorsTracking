@@ -1,7 +1,7 @@
 /*
  * AppErrorsTracking - Added more features to app's crash dialog, fixed custom rom deleted dialog, the best experience to Android developer.
  * Copyright (C) 2017 Fankes Studio(qzmmcn@163.com)
- * https://github.com/KitsunePie/AppErrorsTracking
+ * https://github.com/Piktowo/AppErrorsTracking
  *
  * This software is non-free but opensource software: you can redistribute it
  * and/or modify it under the terms of the GNU Affero General Public License
@@ -292,6 +292,14 @@ fun Context.toast(msg: String) {
     runCatching {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
     }.onFailure { YLog.warn(msg) }
+}
+
+/**
+ * 统一轻反馈
+ * @param msg 提示内容
+ */
+fun Context.feedback(msg: String) {
+    if (this is Activity) snake(msg = msg) else toast(msg)
 }
 
 /**

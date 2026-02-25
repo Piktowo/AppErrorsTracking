@@ -1,7 +1,7 @@
 /*
  * AppErrorsTracking - Added more features to app's crash dialog, fixed custom rom deleted dialog, the best experience to Android developer.
  * Copyright (C) 2017 Fankes Studio(qzmmcn@163.com)
- * https://github.com/KitsunePie/AppErrorsTracking
+ * https://github.com/Piktowo/AppErrorsTracking
  *
  * This software is non-free but opensource software: you can redistribute it
  * and/or modify it under the terms of the GNU Affero General Public License
@@ -55,6 +55,9 @@ object ConfigData {
 
     /** 启用对话框防误触 */
     val ENABLE_PREVENT_MISOPERATION_FOR_DIALOG = PrefsData("_enable_prevent_misoperation_for_dialog", false)
+
+    /** 启用崩溃分发调试日志 */
+    val ENABLE_VERBOSE_CRASH_DISPATCH_LOG = PrefsData("_enable_verbose_crash_dispatch_log", false)
 
     /** 禁止异常堆栈内容自动换行 */
     val DISABLE_AUTO_WRAP_ERROR_STACK_TRACE = PrefsData("_disable_auto_wrap_error_stack_trace", false)
@@ -208,6 +211,16 @@ object ConfigData {
         get() = getBoolean(ENABLE_PREVENT_MISOPERATION_FOR_DIALOG)
         set(value) {
             putBoolean(ENABLE_PREVENT_MISOPERATION_FOR_DIALOG, value)
+        }
+
+    /**
+     * 是否启用崩溃分发调试日志
+     * @return [Boolean]
+     */
+    var isEnableVerboseCrashDispatchLog
+        get() = getBoolean(ENABLE_VERBOSE_CRASH_DISPATCH_LOG)
+        set(value) {
+            putBoolean(ENABLE_VERBOSE_CRASH_DISPATCH_LOG, value)
         }
 
     /**

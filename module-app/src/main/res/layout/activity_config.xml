@@ -120,6 +120,7 @@
             android:layout_height="match_parent"
             android:divider="@color/trans"
             android:dividerHeight="15dp"
+            android:fastScrollEnabled="true"
             android:fadingEdgeLength="10dp"
             android:listSelector="@color/trans"
             android:paddingLeft="15dp"

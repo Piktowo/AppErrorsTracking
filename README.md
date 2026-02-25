@@ -1,9 +1,9 @@
 # AppErrorsTracking
 
-[![GitHub license](https://img.shields.io/github/license/KitsunePie/AppErrorsTracking?color=blue&style=flat-square)](https://github.com/KitsunePie/AppErrorsTracking/blob/master/LICENSE)
-[![GitHub CI](https://img.shields.io/github/actions/workflow/status/KitsunePie/AppErrorsTracking/commit_ci.yml?label=CI%20builds&style=flat-square)](https://github.com/KitsunePie/AppErrorsTracking/actions/workflows/commit_ci.yml)
-[![GitHub release](https://img.shields.io/github/v/release/KitsunePie/AppErrorsTracking?display_name=release&logo=github&color=green&style=flat-square)](https://github.com/KitsunePie/AppErrorsTracking/releases)
-![GitHub all releases](https://img.shields.io/github/downloads/KitsunePie/AppErrorsTracking/total?label=downloads&style=flat-square)
+[![GitHub license](https://img.shields.io/github/license/Piktowo/AppErrorsTracking?color=blue&style=flat-square)](https://github.com/Piktowo/AppErrorsTracking/blob/master/LICENSE)
+[![GitHub CI](https://img.shields.io/github/actions/workflow/status/Piktowo/AppErrorsTracking/commit_ci.yml?label=CI%20builds&style=flat-square)](https://github.com/Piktowo/AppErrorsTracking/actions/workflows/commit_ci.yml)
+[![GitHub release](https://img.shields.io/github/v/release/Piktowo/AppErrorsTracking?display_name=release&logo=github&color=green&style=flat-square)](https://github.com/Piktowo/AppErrorsTracking/releases)
+![GitHub all releases](https://img.shields.io/github/downloads/Piktowo/AppErrorsTracking/total?label=downloads&style=flat-square)
 ![GitHub all releases](https://img.shields.io/github/downloads/Xposed-Modules-Repo/com.fankes.apperrorstracking/total?label=LSPosed%20downloads&labelColor=F48FB1&style=flat-square)
 
 [![Telegram CI](https://img.shields.io/badge/CI%20builds-Telegram-blue.svg?logo=telegram&style=flat-square)](https://t.me/AppErrorsTracking_CI)
@@ -71,13 +71,13 @@ Contributions to this project are welcome to translate it into your country's la
 
 ## Release Channel
 
-| <img src="https://avatars.githubusercontent.com/in/15368?s=64&v=4" width = "30" height = "30" alt="LOGO"/> | [GitHub CI](https://github.com/KitsunePie/AppErrorsTracking/actions/workflows/commit_ci.yml) | CI automatic build (test version) |
+| <img src="https://avatars.githubusercontent.com/in/15368?s=64&v=4" width = "30" height = "30" alt="LOGO"/> | [GitHub CI](https://github.com/Piktowo/AppErrorsTracking/actions/workflows/commit_ci.yml) | CI automatic build (test version) |
 |------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|-----------------------------------|
 
 | <img src="https://github.com/peter-iakovlev/Telegram/blob/public/Icon.png?raw=true" width = "30" height = "30" alt="LOGO"/> | [Telegram CI Channel](https://t.me/AppErrorsTracking_CI) | CI automatic build (test version) |
 |-----------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------|-----------------------------------|
 
-| <img src="https://avatars.githubusercontent.com/in/15368?s=64&v=4" width = "30" height = "30" alt="LOGO"/> | [GitHub Releases](https://github.com/KitsunePie/AppErrorsTracking/releases) | Formal edition (stable version) |
+| <img src="https://avatars.githubusercontent.com/in/15368?s=64&v=4" width = "30" height = "30" alt="LOGO"/> | [GitHub Releases](https://github.com/Piktowo/AppErrorsTracking/releases) | Formal edition (stable version) |
 |------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------|---------------------------------|
 
 | <img src="https://avatars.githubusercontent.com/u/78217009?s=200&v=4?raw=true" width = "30" height = "30" alt="LOGO"/> | [Xposed-Modules-Repo](https://github.com/Xposed-Modules-Repo/com.fankes.apperrorstracking/releases) | Formal edition (stable version) |
@@ -100,7 +100,7 @@ We have nothing to do with versions downloaded from other informal channels or a
 
 ## Star History
 
-![Star History Chart](https://api.star-history.com/svg?repos=KitsunePie/AppErrorsTracking&type=Date)
+![Star History Chart](https://api.star-history.com/svg?repos=Piktowo/AppErrorsTracking&type=Date)
 
 ## License
 

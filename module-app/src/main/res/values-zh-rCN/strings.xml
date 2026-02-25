@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">异常跟踪</string>
-    <string name="xposed_desc">为原生 FC 对话框增加更多功能并修复国内定制 ROM 删除 FC 对话框的问题，给 Android 开发者带来更好的体验。\n开发者：酷安 @星夜不荟</string>
+    <string name="xposed_desc">为原生 FC 对话框增加更多功能并修复国内定制 ROM 删除 FC 对话框的问题，给 Android 开发者带来更好的体验。</string>
     <string name="app_info">应用信息</string>
     <string name="reopen_app">重新打开</string>
     <string name="error_detail">错误详情</string>
@@ -117,6 +117,10 @@
     <string name="errors_dialog_always_show_reopen_tip">启用后，在使用对话框显示应用异常时，非首次异常时也将显示“重新打开”选项，若当前异常非主进程或应用无法打开则依然不会显示此选项。</string>
     <string name="errors_dialog_prevent_misoperation">错误对话框防误触</string>
     <string name="errors_dialog_prevent_misoperation_tip">启用后，错误对话框弹出前 1s 内不会响应点击事件</string>
+    <string name="show_advanced_settings">显示高级设置</string>
+    <string name="hide_advanced_settings">隐藏高级设置</string>
+    <string name="verbose_crash_dispatch_log">启用崩溃分发调试日志</string>
+    <string name="verbose_crash_dispatch_log_tip">将崩溃 UI 分发决策输出到 Xposed/LSPosed 日志，用于排查“为什么没有弹窗”。</string>
     <string name="developer_notice_tip">此模块专为 Android 开发者而打造。\n\n在可能的无法连接电脑，不能进行 ADB 调试的时候，可通过此模块来快速捕获任意已安装应用的任意异常，以便快速定位问题。\n\n应用发生崩溃的错误日志对开发者来说是无价的财富，若你不是开发者，你依然可以安装此模块，以便给开发者提供更多异常信息快速解决问题。</string>
     <string name="developer_notice">使用说明</string>
     <string name="fast_restart_problem">部分定制系统使用快速重启后可能会发生错误，仍然要继续吗？</string>
@@ -143,6 +147,8 @@
     <string name="system_apps">系统应用</string>
     <string name="all_apps">全部应用</string>
     <string name="disable_auto_wrap_error_stack_trace_content">禁止异常堆栈内容自动换行</string>
+    <string name="show_stack_trace">展开异常堆栈</string>
+    <string name="hide_stack_trace">收起异常堆栈</string>
     <string name="click_to_update">点击更新 %1$s</string>
     <string name="latest_version">最新版本 %1$s</string>
     <string name="latest_version_tip">发布于 %1$s\n\n更新日志\n\n%2$s</string>

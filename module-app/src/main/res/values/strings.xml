@@ -115,6 +115,10 @@
     <string name="errors_dialog_always_show_reopen_tip">After enabling, when using the dialog to display application exceptions, the \"Reopen App\" option will also be displayed when the errors is not the first time. If the current errors is not the main process or the application cannot be opened, this option will still not be displayed.</string>
     <string name="errors_dialog_prevent_misoperation">Prevent misoperation of error dialog</string>
     <string name="errors_dialog_prevent_misoperation_tip">After enabling, the error dialog will not respond to click events within 1s after popping up</string>
+    <string name="show_advanced_settings">Show advanced settings</string>
+    <string name="hide_advanced_settings">Hide advanced settings</string>
+    <string name="verbose_crash_dispatch_log">Enable crash dispatch debug logs</string>
+    <string name="verbose_crash_dispatch_log_tip">Logs detailed crash UI dispatch decisions to Xposed/LSPosed logs for troubleshooting why dialogs are not shown.</string>
     <string name="developer_notice_tip">This module is specially designed for Android developers.\n\nWhen it is possible that the computer cannot be connected and ADB cannot be performed, this module can be used to quickly capture any exception of any installed apps, so as to quickly locate the problem.\n\nThe error log of apps crashing is an invaluable asset for developers. If you are not a developer, you can still install this module to provide developers with more exception information to quickly solve problems.</string>
     <string name="developer_notice">Instructions</string>
     <string name="warning">Warning</string>
@@ -144,6 +148,8 @@
     <string name="system_apps">System apps</string>
     <string name="all_apps">All apps</string>
     <string name="disable_auto_wrap_error_stack_trace_content">Disable error stack trace automatic wrapping</string>
+    <string name="show_stack_trace">Show stack trace</string>
+    <string name="hide_stack_trace">Hide stack trace</string>
     <string name="click_to_update">Click to update %1$s</string>
     <string name="latest_version">Latest Version %1$s</string>
     <string name="latest_version_tip">Released on %1$s\n\nChangelog\n\n%2$s</string>
