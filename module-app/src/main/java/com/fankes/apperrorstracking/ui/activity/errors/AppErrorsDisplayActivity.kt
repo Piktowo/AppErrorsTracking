@@ -74,11 +74,18 @@ class AppErrorsDisplayActivity : BaseActivity<ActivityAppErrorsDisplayBinding>()
                     binding.reopenAppIcon, binding.errorDetailIcon,
                     binding.mutedIfUnlockIcon, binding.mutedIfRestartIcon
                 ).forEach { it.setColorFilter(resources.colorOf(android.R.color.system_accent1_600)) }
+            if (ConfigData.isEnableMaterial3StyleAppErrorsDialog && Build.VERSION.SDK_INT < Build.VERSION_CODES.S)
+                arrayOf(
+                    binding.appInfoIcon, binding.closeAppIcon,
+                    binding.reopenAppIcon, binding.errorDetailIcon,
+                    binding.mutedIfUnlockIcon, binding.mutedIfRestartIcon
+                ).forEach { it.setColorFilter(resources.colorOf(R.color.colorPrimaryAccent)) }
             binding.processNameText.isVisible = appErrorsDisplay.packageName != appErrorsDisplay.processName
             binding.appInfoItem.isVisible = appErrorsDisplay.isShowAppInfoButton
             binding.closeAppItem.isVisible = appErrorsDisplay.isShowReopenButton.not() && appErrorsDisplay.isShowCloseAppButton
             binding.reopenAppItem.isVisible = appErrorsDisplay.isShowReopenButton
             binding.processNameText.text = locale.crashProcess(appErrorsDisplay.processName)
+            onShow { playDialogEnterAnimation(binding) }
             binding.appInfoItem.setOnClickListener {
                 cancel()
                 openSelfSetting(appErrorsDisplay.packageName)
@@ -107,6 +114,23 @@ class AppErrorsDisplayActivity : BaseActivity<ActivityAppErrorsDisplayBinding>()
                 }
             }
             onCancel { finish() }
+        }
+    }
+
+    /** 播放轻量入场动画，提升弹窗感知并降低突兀感 */
+    private fun playDialogEnterAnimation(binding: DiaAppErrorsDisplayBinding) {
+        listOf(
+            binding.processNameText,
+            binding.appInfoItem,
+            binding.closeAppItem,
+            binding.reopenAppItem,
+            binding.errorDetailItem,
+            binding.mutedIfUnlockItem,
+            binding.mutedIfRestartItem
+        ).filter { it.isVisible }.forEachIndexed { index, view ->
+            view.alpha = 0f
+            view.translationY = 10f
+            view.animate().alpha(1f).translationY(0f).setDuration(180L).setStartDelay(index * 20L).start()
         }
     }
 

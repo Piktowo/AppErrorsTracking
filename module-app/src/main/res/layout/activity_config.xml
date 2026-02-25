@@ -92,8 +92,7 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="10dp"
-        android:animateLayoutChanges="true">
+        android:layout_marginTop="10dp">
 
         <com.google.android.material.progressindicator.CircularProgressIndicator
             android:id="@+id/list_progress_view"

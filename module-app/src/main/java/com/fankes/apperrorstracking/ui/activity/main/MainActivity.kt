@@ -46,7 +46,6 @@ import com.fankes.apperrorstracking.utils.tool.AppAnalyticsTool
 import com.fankes.apperrorstracking.utils.tool.AppAnalyticsTool.bindAppAnalytics
 import com.fankes.apperrorstracking.utils.tool.FrameworkTool
 import com.fankes.apperrorstracking.utils.tool.GithubReleaseTool
-import com.fankes.projectpromote.ProjectPromote
 import com.highcapable.betterandroid.ui.extension.view.isUnderline
 import com.highcapable.yukihookapi.YukiHookAPI
 
@@ -71,8 +70,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                 setOnClickListener { function() }
             }
         }
-        /** 推广、恰饭 */
-        if (YukiHookAPI.Status.isXposedModuleActive) ProjectPromote.show(activity = this, ModuleVersion.toString())
         /** 显示开发者提示 */
         if (ConfigData.isShowDeveloperNotice)
             showDialog {

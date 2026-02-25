@@ -70,7 +70,6 @@ androidComponents {
 }
 
 dependencies {
-    implementation(libs.project.promote)
     implementation(libs.kavaref.core)
     implementation(libs.kavaref.extension)
     implementation(libs.androidx.core.ktx)
