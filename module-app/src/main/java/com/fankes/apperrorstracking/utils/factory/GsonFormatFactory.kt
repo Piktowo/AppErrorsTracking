@@ -51,7 +51,8 @@ fun Any?.toJsonOrNull() = runCatching { toJson() }.getOrNull()
  * @return [T] or null
  * @throws [JsonSyntaxException] 如果 Json 格式不正确
  */
-inline fun <reified T> String.toEntity(): T? = takeIf { it.isNotBlank() }.let { GSON.fromJson(this, object : TypeToken<T>() {}.type) }
+inline fun <reified T> String.toEntity(): T? =
+    takeIf { it.isNotBlank() }?.let { json -> GSON.fromJson(json, object : TypeToken<T>() {}.type) }
 
 /**
  * Json 字符串转实体类

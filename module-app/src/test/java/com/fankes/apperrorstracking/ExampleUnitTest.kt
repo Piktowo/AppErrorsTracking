@@ -1,17 +1,22 @@
 package com.fankes.apperrorstracking
 
+import com.fankes.apperrorstracking.utils.factory.toEntity
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Test
 
-import org.junit.Assert.*
+data class TestPayload(val value: String)
 
-/**
- * Example local unit test, which will execute on the development machine (host).
- *
- * See [testing documentation](http://d.android.com/tools/testing).
- */
 class ExampleUnitTest {
+
     @Test
-    fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
+    fun `toEntity returns null for blank json`() {
+        assertNull("".toEntity<TestPayload>())
+        assertNull("   ".toEntity<TestPayload>())
+    }
+
+    @Test
+    fun `toEntity parses valid json`() {
+        assertEquals(TestPayload("ok"), "{\"value\":\"ok\"}".toEntity<TestPayload>())
     }
 }

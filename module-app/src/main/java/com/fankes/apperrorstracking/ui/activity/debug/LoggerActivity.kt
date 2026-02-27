@@ -32,7 +32,7 @@ import android.widget.AdapterView
 import androidx.core.view.isVisible
 import com.fankes.apperrorstracking.R
 import com.fankes.apperrorstracking.const.PackageName
-import com.fankes.apperrorstracking.databinding.ActivitiyLoggerBinding
+import com.fankes.apperrorstracking.databinding.ActivityLoggerBinding
 import com.fankes.apperrorstracking.databinding.AdapterLoggerBinding
 import com.fankes.apperrorstracking.databinding.DiaLoggerFilterBinding
 import com.fankes.apperrorstracking.locale.locale
@@ -50,7 +50,7 @@ import java.io.PrintStream
 import java.text.SimpleDateFormat
 import java.util.Date
 
-class LoggerActivity : BaseActivity<ActivitiyLoggerBinding>() {
+class LoggerActivity : BaseActivity<ActivityLoggerBinding>() {
 
     companion object {
 

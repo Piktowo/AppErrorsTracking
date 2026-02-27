@@ -82,7 +82,7 @@ object AppErrorsRecordData {
 
     /**
      * 获取旧版异常记录数据并自动转换到新版
-     * @return [ArrayList]<[AppErrorsInfoBean]> or null
+     * @return [CopyOnWriteArrayList]<[AppErrorsInfoBean]> or null
      */
     private fun copyOldDataFromResolverString() = context?.let {
         val keyName = "app_errors_data"
@@ -105,7 +105,7 @@ object AppErrorsRecordData {
 
     /**
      * 从文件获取全部异常记录数据
-     * @return [ArrayList]<[AppErrorsInfoBean]>
+     * @return [CopyOnWriteArrayList]<[AppErrorsInfoBean]>
      */
     private fun readAllDataFromFiles() = copyOldDataFromResolverString() ?: CopyOnWriteArrayList<AppErrorsInfoBean>().apply {
         errorsInfoDataFiles.takeIf { it.isNotEmpty() }?.forEach { it.readText().toEntityOrNull<AppErrorsInfoBean>()?.let { e -> add(e) } }
