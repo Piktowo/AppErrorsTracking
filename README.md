@@ -37,7 +37,7 @@ dialog) of apps crashes. I thought this was always a feature until I decompiled 
 Does the product manager think that it is the best solution to let the user not see the error, and the apps will crash and exit directly, or is
 there another **hidden secret**?
 
-## Woking Principle
+## Working Principle
 
 Unlike `Thread.UncaughtExceptionHandler`, we use the native method to capture apps errors in all directions by injecting the system framework,
 without generating additional registration monitoring, which is better than the original exception monitoring in performance.

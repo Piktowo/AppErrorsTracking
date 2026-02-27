@@ -55,7 +55,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         private val systemVersion = "${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT}) ${Build.DISPLAY}"
 
         /** 模块是否有效 */
-        var isModuleValied = false
+        var isModuleValid = false
     }
 
     override fun onCreate() {
@@ -143,7 +143,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     private fun refreshModuleStatus() {
         binding.mainLinStatus.setBackgroundResource(
             when {
-                YukiHookAPI.Status.isXposedModuleActive && isModuleValied.not() -> R.drawable.bg_yellow_round
+                YukiHookAPI.Status.isXposedModuleActive && isModuleValid.not() -> R.drawable.bg_yellow_round
                 YukiHookAPI.Status.isXposedModuleActive -> R.drawable.bg_green_round
                 else -> R.drawable.bg_dark_round
             }
@@ -155,7 +155,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             }
         )
         binding.mainTextStatus.text = when {
-            YukiHookAPI.Status.isXposedModuleActive && isModuleValied.not() -> locale.moduleNotFullyActivated
+            YukiHookAPI.Status.isXposedModuleActive && isModuleValid.not() -> locale.moduleNotFullyActivated
             YukiHookAPI.Status.isXposedModuleActive -> locale.moduleIsActivated
             else -> locale.moduleNotActivated
         }
@@ -176,8 +176,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         /** 刷新模块状态 */
         refreshModuleStatus()
         /** 检查模块激活状态 */
-        FrameworkTool.checkingActivated(context = this) { isValied ->
-            isModuleValied = isValied
+        FrameworkTool.checkingActivated(context = this) { isValid ->
+            isModuleValid = isValid
             refreshModuleStatus()
         }
     }
