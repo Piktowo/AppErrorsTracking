@@ -130,7 +130,7 @@ class AppErrorsDisplayActivity : BaseActivity<ActivityAppErrorsDisplayBinding>()
         ).filter { it.isVisible }.forEachIndexed { index, view ->
             view.alpha = 0f
             view.translationY = 10f
-            view.animate().alpha(1f).translationY(0f).setDuration(180L).setStartDelay(index * 20L).start()
+            view.animate().alpha(1f).translationY(0f).setDuration(140L).setStartDelay(index * 12L).start()
         }
     }
 

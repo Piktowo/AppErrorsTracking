@@ -21,6 +21,7 @@
  */
 package com.fankes.apperrorstracking.ui.activity.main
 
+import android.graphics.drawable.Drawable
 import androidx.core.view.isVisible
 import com.fankes.apperrorstracking.bean.AppFiltersBean
 import com.fankes.apperrorstracking.bean.AppInfoBean
@@ -49,6 +50,9 @@ class ConfigureActivity : BaseActivity<ActivityConfigBinding>() {
 
     /** 全部的 APP 信息 */
     private val listData = ArrayList<AppInfoBean>()
+
+    /** 应用图标缓存，减少重复加载提升列表加载速度 */
+    private val appIconCache = hashMapOf<String, Drawable?>()
 
     override fun onCreate() {
         binding.titleBackIcon.setOnClickListener { finish() }
@@ -123,7 +127,7 @@ class ConfigureActivity : BaseActivity<ActivityConfigBinding>() {
                             AppErrorsConfigData.isAppShowingType(AppErrorsConfigType.NOTIFY, bean.packageName) -> locale.showErrorsNotify
                             AppErrorsConfigData.isAppShowingType(AppErrorsConfigType.TOAST, bean.packageName) -> locale.showErrorsToast
                             AppErrorsConfigData.isAppShowingType(AppErrorsConfigType.NOTHING, bean.packageName) -> locale.showNothing
-                            else -> "Unknown type"
+                            else -> locale.unknownType
                         }
                     }
                 }
@@ -138,7 +142,7 @@ class ConfigureActivity : BaseActivity<ActivityConfigBinding>() {
             }
         }
         /** 模块未完全激活将显示警告 */
-        if (MainActivity.isModuleValied.not())
+        if (MainActivity.isModuleValid.not())
             showDialog {
                 title = locale.notice
                 msg = locale.moduleNotFullyActivatedTip
@@ -209,7 +213,7 @@ class ConfigureActivity : BaseActivity<ActivityConfigBinding>() {
                 runCatching {
                     it.takeIf { e -> e.isNotEmpty() }?.forEach { e ->
                         tempsData.add(e)
-                        e.icon = appIconOf(e.packageName)
+                        e.icon = appIconCache.getOrPut(e.packageName) { appIconOf(e.packageName) }
                     }
                 }
                 if (isDestroyed.not()) runOnUiThread {
