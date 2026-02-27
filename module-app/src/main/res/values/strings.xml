@@ -79,7 +79,7 @@
     <string name="view_errors_record">View Apps Errors Record</string>
     <string name="view_muted_errors_apps">View Muted Errors Apps</string>
     <string name="only_show_errors_in_front_tip">After enabling, errors are shown only when the crashing app is in the foreground (in use). Background crashes will not be shown immediately, but they will still be recorded in error history.</string>
-    <string name="only_show_errors_in_main_process_tip">After enabling, error information is shown only when the exception occurs in the app's main process (the first Application instance).</string>
+    <string name="only_show_errors_in_main_process_tip">After enabling, error information is shown only when the exception occurs in the app\'s main process (the first Application instance).</string>
     <string name="apps_config_template_tip">Here you can configure, per app, whether to display an error dialog or other error prompts when an exception occurs.\nAfter disabling this option, all apps will always display error information as dialogs.</string>
     <string name="view_muted_errors_apps_tip">Here you can find apps that you have manually muted errors in different forms. This list will be automatically cleared after restarting. You can manage these ignored applications and remove them from the mute list.</string>
     <string name="muted_errors_apps">Muted Errors Apps</string>
