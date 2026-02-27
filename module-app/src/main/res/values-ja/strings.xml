@@ -90,7 +90,8 @@
   <string name="filter_by_condition">条件で絞り込む</string>
   <string name="no_list_result">表示する結果がありません</string>
   <string name="typo_app_name_pkg_name">アプリ名またはパッケージ名のタイプミス</string>
-  <string name="clear_filters">絞り込みをクリア</string>
+  <string name="unknown_type">不明な種類</string>
+    <string name="clear_filters">絞り込みをクリア</string>
   <string name="result_count">%1$s 件の結果が見つかりました</string>
   <string name="loading">読み込み中</string>
   <string name="when_errors_how_to_show_tip">アプリのクラッシュ時にシステムがエラーをどのように表示するかを構成できます。</string>
