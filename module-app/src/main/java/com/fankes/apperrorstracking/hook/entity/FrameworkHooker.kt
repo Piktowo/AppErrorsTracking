@@ -102,6 +102,9 @@ object FrameworkHooker : YukiBaseHooker() {
     /** UI 分发类型 */
     private enum class ErrorUiMode { DIALOG, NOTIFY, TOAST, NONE }
 
+    /** 包名白名单规则 (安全限制) */
+    private val packageNameRegex = Regex("^[a-zA-Z0-9_]+(?:\\.[a-zA-Z0-9_]+)+$")
+
     /**
      * 当前崩溃事件是否可展示 UI
      * @param token 事件标识
@@ -263,8 +266,13 @@ object FrameworkHooker : YukiBaseHooker() {
                 if (prefs.isPreferencesAvailable.not()) YLog.warn("Cannot refreshing app errors config data, preferences is not available")
             }
             onOpenAppUsedFramework {
-                appContext?.openApp(it.first, it.second)
-                YLog.info("Opened \"${it.first}\"${it.second.takeIf { e -> e > 0 }?.let { e -> " --user $e" } ?: ""}")
+                val packageName = it.first
+                if (packageName.isBlank() || packageName.length > 255 || packageNameRegex.matches(packageName).not()) {
+                    YLog.warn("Refuse open app due to invalid package name: \"$packageName\"")
+                    return@onOpenAppUsedFramework
+                }
+                appContext?.openApp(packageName, it.second)
+                YLog.info("Opened \"$packageName\"${it.second.takeIf { e -> e > 0 }?.let { e -> " --user $e" } ?: ""}")
             }
             onPushAppErrorInfoData {
                 AppErrorsRecordData.allData.firstOrNull { e -> e.pid == it } ?: run {
@@ -535,20 +543,26 @@ object FrameworkHooker : YukiBaseHooker() {
         AppErrorsClass.resolve().optional().apply {
             when {
                 Build.VERSION.SDK_INT > Build.VERSION_CODES.R -> {
-                    firstMethodOrNull {
-                        name = "handleAppCrashLSPB"
-                        parameterCount = 6
-                    }?.hook()?.after {
-                        if (args(index = 1).string() == "user-terminated") {
-                            verboseLog { "Ignore user-terminated crash event" }
-                            return@after
+                    fun hookHandleAppCrashLspb(parameterCount: Int, reasonIndexes: IntArray) {
+                        firstMethodOrNull {
+                            name = "handleAppCrashLSPB"
+                            this.parameterCount = parameterCount
+                        }?.hook()?.after {
+                            if (reasonIndexes.any { index -> args(index = index).string() == "user-terminated" }) {
+                                verboseLog { "Ignore user-terminated crash event" }
+                                return@after
+                            }
+                            val context = appContext ?: firstFieldOrNull { name = "mContext" }?.of(instance)?.get<Context>() ?: return@after
+                            val proc = args().first().any() ?: return@after YLog.warn("Received but got null ProcessRecord (Show UI failed)")
+                            val resultData = args().last().any()
+                            verboseLog { "Hit hook handleAppCrashLSPB (args=$parameterCount)" }
+                            AppErrorsProcessData(instance, proc, resultData).handleShowAppErrorUi(context)
                         }
-                        val context = appContext ?: firstFieldOrNull { name = "mContext" }?.of(instance)?.get<Context>() ?: return@after
-                        val proc = args().first().any() ?: return@after YLog.warn("Received but got null ProcessRecord (Show UI failed)")
-                        val resultData = args().last().any()
-                        verboseLog { "Hit hook handleAppCrashLSPB" }
-                        AppErrorsProcessData(instance, proc, resultData).handleShowAppErrorUi(context)
                     }
+                    // 适配 AOSP / LSPosed / LSPosed-Irena 的潜在签名差异
+                    hookHandleAppCrashLspb(parameterCount = 6, reasonIndexes = intArrayOf(1))
+                    hookHandleAppCrashLspb(parameterCount = 7, reasonIndexes = intArrayOf(1, 2))
+                    hookHandleAppCrashLspb(parameterCount = 8, reasonIndexes = intArrayOf(1, 2, 3))
                 }
                 else -> {
                     firstMethodOrNull {
