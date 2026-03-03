@@ -24,8 +24,8 @@
     <string name="error_record_time">记录时间</string>
     <string name="copied">已复制</string>
     <string name="copy_fail">复制失败</string>
-    <string name="print_to_logcat">打印到控制台</string>
-    <string name="print_to_logcat_success">已打印到控制台</string>
+    <string name="print_to_logcat">输出到 Logcat</string>
+    <string name="print_to_logcat_success">已输出到 Logcat</string>
     <string name="output_stack_success">已导出异常堆栈</string>
     <string name="output_stack_fail">导出异常堆栈失败</string>
     <string name="export_all">导出全部</string>
@@ -69,7 +69,7 @@
     <string name="day_ago">天前</string>
     <string name="month_ago">月前</string>
     <string name="year_ago">年前</string>
-    <string name="crash_process">异常进程 \"%1$s\"</string>
+    <string name="crash_process">崩溃进程 "%1$s"</string>
     <string name="share_error_stack">分享异常堆栈</string>
     <string name="preference_settings">偏好设置</string>
     <string name="function_mgr">功能管理</string>
@@ -91,7 +91,7 @@
     <string name="apps_config_template">应用配置模板</string>
     <string name="filter_by_condition">按条件过滤</string>
     <string name="no_list_result">没有结果可以显示</string>
-    <string name="typo_app_name_pkg_name">可输入 APP 名称、包名</string>
+    <string name="typo_app_name_pkg_name">输入应用名称或包名</string>
     <string name="unknown_type">未知类型</string>
     <string name="clear_filters">清除条件</string>
     <string name="result_count">共 %1$s 个结果</string>
@@ -118,7 +118,7 @@
     <string name="errors_dialog_always_show_reopen">错误对话框始终显示“重新打开”选项</string>
     <string name="errors_dialog_always_show_reopen_tip">启用后，在使用对话框显示应用异常时，非首次异常时也将显示“重新打开”选项，若当前异常非主进程或应用无法打开则依然不会显示此选项。</string>
     <string name="errors_dialog_prevent_misoperation">错误对话框防误触</string>
-    <string name="errors_dialog_prevent_misoperation_tip">启用后，错误对话框弹出前 1s 内不会响应点击事件</string>
+    <string name="errors_dialog_prevent_misoperation_tip">启用后，错误对话框弹出后 1 秒内不响应点击操作</string>
     <string name="show_advanced_settings">显示高级设置</string>
     <string name="hide_advanced_settings">隐藏高级设置</string>
     <string name="verbose_crash_dispatch_log">启用崩溃分发调试日志</string>

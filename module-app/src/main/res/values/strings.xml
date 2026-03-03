@@ -61,7 +61,7 @@
     <string name="are_your_sure_restart_system">Are you sure you want to restart system?</string>
     <string name="fast_restart">Fast Restart</string>
     <string name="access_root_fail">Access Root failed</string>
-    <string name="moment_ago">moment ago</string>
+    <string name="moment_ago">Just now</string>
     <string name="second_ago">seconds ago</string>
     <string name="minute_ago">minutes ago</string>
     <string name="hour_ago">hours ago</string>
@@ -141,7 +141,7 @@
     <string name="microsoft_app_center" translatable="false">Firebase Analytics</string>
     <string name="enable_anonymous_statistics">Enable anonymous statistics</string>
     <string name="enable_anonymous_statistics_tip">After enabling, we will use the Microsoft App Center to anonymously send application-related diagnostic data to help the application function better.\nThe information collected is anonymous, and we cannot trace it back to an independent device or user.\nEnabling or disabling this feature requires restarting the app to take effect.</string>
-    <string name="go_it_now">Go It Now</string>
+    <string name="go_it_now">Go Now</string>
     <string name="access_root_fail_tip">Root permission cannot be obtained currently, please confirm that your device has been rooted and agree to grant Root permission.\nIf you are using Magisk and installed the Shamiko module, please confirm whether it is currently in whitelist mode. (Whitelist mode will make it impossible to apply for Root permission)</string>
     <string name="global_config">Global Config</string>
     <string name="follow_global_config">Follow global config</string>
@@ -167,7 +167,7 @@
     <string name="stack_trace_share_device_model">Device Model</string>
     <string name="stack_trace_share_system_build_id">System Build ID</string>
     <string name="stack_trace_share_package_name">App Package Name</string>
-    <string name="stack_trace_share_other">Other Requirement</string>
+    <string name="stack_trace_share_other">Other Requirements</string>
     <string name="share_with_file">Share errors stacktrace with file</string>
     <string name="share_with_file_tip">Share errors stacktrace using files instead of text</string>
     <string name="about_module_extension">This Xposed Module is powered by KavaRef.\nLearn more https://github.com/HighCapable/KavaRef</string>
