@@ -118,3 +118,5 @@ site
 
 # Mac OS
 .DS_Store
+# Signing key base64 export
+.secret/universal_b64.txt
