@@ -1,4 +1,4 @@
-name: Cleanup Workflow Runs and Caches
+name: 清理工作流记录与缓存
 
 on:
   workflow_dispatch:
@@ -14,12 +14,12 @@ on:
 
 jobs:
   cleanup:
-    name: Cleanup
+    name: 清理
     runs-on: ubuntu-latest
     permissions:
       actions: write
     steps:
-      - name: Delete old workflow runs
+      - name: 删除历史工作流记录
         if: ${{ inputs.cleanup_runs }}
         uses: Mattraks/delete-workflow-runs@v2
         with:
@@ -28,7 +28,7 @@ jobs:
           retain_days: 0
           keep_minimum_runs: 0
 
-      - name: Delete all caches
+      - name: 删除所有构建缓存
         if: ${{ inputs.cleanup_caches }}
         run: |
           echo "正在获取所有缓存..."
