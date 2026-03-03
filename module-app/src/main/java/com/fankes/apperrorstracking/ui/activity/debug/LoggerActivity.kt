@@ -92,7 +92,8 @@ class LoggerActivity : BaseActivity<ActivityLoggerBinding>() {
             runCatching {
                 startActivityForResult(Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
                     addCategory(Intent.CATEGORY_OPENABLE)
-                    type = "*/application"
+                    addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    type = "text/plain"
                     putExtra(Intent.EXTRA_TITLE, "app_errors_tracking_${System.currentTimeMillis().toUtcTime()}.log")
                 }, WRITE_REQUEST_CODE)
             }.onFailure { toast(msg = "Start Android SAF failed") }

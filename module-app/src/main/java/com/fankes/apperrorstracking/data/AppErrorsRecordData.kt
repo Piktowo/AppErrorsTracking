@@ -40,6 +40,9 @@ import java.util.concurrent.CopyOnWriteArrayList
  */
 object AppErrorsRecordData {
 
+    /** 最大异常记录条数 */
+    private const val MAX_RECORDS = 500
+
     /** 异常记录数据文件目录路径 */
     private const val FOLDER_PATH = "/data/misc/app_errors_records/"
 
@@ -118,6 +121,11 @@ object AppErrorsRecordData {
     fun add(bean: AppErrorsInfoBean) {
         allData.add(0, bean)
         bean.toJsonOrNull()?.runCatching { File(errorsInfoDataFolder.absolutePath, bean.jsonFileName).writeText(this) }
+        if (allData.size > MAX_RECORDS) {
+            val oldest = allData.removeAt(allData.size - 1)
+            runCatching { File(errorsInfoDataFolder.absolutePath, oldest.jsonFileName).delete() }
+            YLog.debug("Max records ($MAX_RECORDS) reached, removed oldest record for \"${oldest.packageName}\"")
+        }
     }
 
     /**

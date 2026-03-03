@@ -142,7 +142,8 @@ class AppErrorsDetailActivity : BaseActivity<ActivityAppErrorsDetailBinding>() {
                 runCatching {
                     startActivityForResult(Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
                         addCategory(Intent.CATEGORY_OPENABLE)
-                        type = "*/application"
+                        addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        type = "text/plain"
                         val packageName = if (sPackageName) appErrorsInfo.packageName else "anonymous"
                         putExtra(Intent.EXTRA_TITLE, "${packageName}_${appErrorsInfo.utcTime}.log")
                     }, WRITE_REQUEST_CODE)
@@ -211,7 +212,7 @@ class AppErrorsDetailActivity : BaseActivity<ActivityAppErrorsDetailBinding>() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == WRITE_REQUEST_CODE && resultCode == Activity.RESULT_OK) runCatching {
             data?.data?.let {
-                contentResolver?.openOutputStream(it)?.apply { write(stackTrace.toByteArray()) }?.close()
+                contentResolver?.openOutputStream(it)?.use { stream -> stream.write(stackTrace.toByteArray()) }
                 feedback(locale.outputStackSuccess)
             } ?: feedback(locale.outputStackFail)
         }.onFailure { feedback(locale.outputStackFail) }

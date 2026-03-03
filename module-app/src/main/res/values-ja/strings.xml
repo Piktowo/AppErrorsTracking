@@ -107,6 +107,7 @@
   <string name="total_errors_unit">%1$s</string>
   <string name="total_apps_unit">%1$s (システムアプリを含む)</string>
   <string name="generating_statistics">統計の生成</string>
+  <string name="exporting_records">レコードをエクスポート中</string>
   <string name="module_not_fully_activated_tip">モジュールが完全にアクティブ化しておらず、現在の設定項目を読み込む事ができない可能性があります。システムを再起動して再試行をしてみる事をお勧めします。</string>
   <string name="show_errors_notify">エラー通知を表示</string>
   <string name="app_errors_tip">アプリが未処理の状態を崩壊します。タップをすると詳細が表示されます。</string>

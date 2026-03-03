@@ -54,7 +54,6 @@ import com.fankes.apperrorstracking.utils.tool.StackTraceShareHelper
 import com.fankes.apperrorstracking.utils.tool.ZipFileTool
 import com.fankes.apperrorstracking.wrapper.BuildConfigWrapper
 import java.io.File
-import java.io.FileInputStream
 
 class AppErrorsRecordActivity : BaseActivity<ActivityAppErrorsRecordBinding>() {
 
@@ -178,22 +177,32 @@ class AppErrorsRecordActivity : BaseActivity<ActivityAppErrorsRecordBinding>() {
     private fun exportAll() {
         clearAllExportTemp()
         StackTraceShareHelper.showChoose(context = this, locale.exportAll) { sDeviceBrand, sDeviceModel, sDisplay, sPackageName ->
-            ("${cacheDir.absolutePath}/temp").also { path ->
-                File(path).mkdirs()
-                listData.takeIf { it.isNotEmpty() }?.forEachIndexed { index, bean ->
-                    val packageName = if (sPackageName) bean.packageName else "anonymous_$index"
-                    File("$path/${packageName}_${bean.utcTime}.log")
-                        .writeText(bean.stackOutputFileContent(sDeviceBrand, sDeviceModel, sDisplay, sPackageName))
+            showDialog {
+                title = locale.notice
+                progressContent = locale.exportingRecords
+                noCancelable()
+                newThread {
+                    val path = "${cacheDir.absolutePath}/temp"
+                    File(path).mkdirs()
+                    listData.takeIf { it.isNotEmpty() }?.forEachIndexed { index, bean ->
+                        val packageName = if (sPackageName) bean.packageName else "anonymous_$index"
+                        File("$path/${packageName}_${bean.utcTime}.log")
+                            .writeText(bean.stackOutputFileContent(sDeviceBrand, sDeviceModel, sDisplay, sPackageName))
+                    }
+                    outPutFilePath = "${cacheDir.absolutePath}/temp_${System.currentTimeMillis()}.zip"
+                    ZipFileTool.zipMultiFile(path, outPutFilePath)
+                    runOnUiThread {
+                        cancel()
+                        runCatching {
+                            startActivityForResult(Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                                addCategory(Intent.CATEGORY_OPENABLE)
+                                addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                type = "application/zip"
+                                putExtra(Intent.EXTRA_TITLE, "app_errors_info_${System.currentTimeMillis().toUtcTime()}.zip")
+                            }, WRITE_REQUEST_CODE)
+                        }.onFailure { toast(msg = "Start Android SAF failed") }
+                    }
                 }
-                outPutFilePath = "${cacheDir.absolutePath}/temp_${System.currentTimeMillis()}.zip"
-                ZipFileTool.zipMultiFile(path, outPutFilePath)
-                runCatching {
-                    startActivityForResult(Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-                        addCategory(Intent.CATEGORY_OPENABLE)
-                        type = "*/application"
-                        putExtra(Intent.EXTRA_TITLE, "app_errors_info_${System.currentTimeMillis().toUtcTime()}.zip")
-                    }, WRITE_REQUEST_CODE)
-                }.onFailure { toast(msg = "Start Android SAF failed") }
             }
         }
     }
@@ -238,7 +247,7 @@ class AppErrorsRecordActivity : BaseActivity<ActivityAppErrorsRecordBinding>() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == WRITE_REQUEST_CODE && resultCode == Activity.RESULT_OK) runCatching {
             data?.data?.let {
-                contentResolver?.openOutputStream(it)?.apply { write(FileInputStream(outPutFilePath).readBytes()) }?.close()
+                contentResolver?.openOutputStream(it)?.use { stream -> stream.write(File(outPutFilePath).readBytes()) }
                 clearAllExportTemp()
                 toast(locale.exportAllErrorsSuccess)
             } ?: toast(locale.exportAllErrorsFail)

@@ -107,6 +107,7 @@
     <string name="total_errors_unit">%1$s</string>
     <string name="total_apps_unit">%1$s (including system apps)</string>
     <string name="generating_statistics">Generating statistics</string>
+    <string name="exporting_records">Exporting records</string>
     <string name="module_not_fully_activated_tip">The module is not fully activated and may fail to load current settings. It is recommended to restart the system and try again.</string>
     <string name="show_errors_notify">Show errors notification</string>
     <string name="app_errors_tip">The app crashed due to an unhandled exception. Tap to view details or send feedback to the app developer.</string>

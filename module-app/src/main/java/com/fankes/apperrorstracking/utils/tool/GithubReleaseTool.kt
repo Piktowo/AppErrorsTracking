@@ -50,6 +50,9 @@ object GithubReleaseTool {
     /** 仓库名称 */
     private const val REPO_NAME = "AppErrorsTracking"
 
+    /** 复用的 HTTP 客户端实例 */
+    private val httpClient = OkHttpClient()
+
     /**
      * 获取最新版本信息
      * @param context 实例
@@ -57,7 +60,7 @@ object GithubReleaseTool {
      * @param result 成功后回调 - ([String] 最新版本,[Function] 更新对话框方法体)
      */
     fun checkingForUpdate(context: Context, version: String, result: (String, () -> Unit) -> Unit) = runCatching {
-        OkHttpClient().newBuilder().build().newCall(
+        httpClient.newCall(
             Request.Builder()
                 .url("https://api.github.com/repos/$REPO_AUTHOR/$REPO_NAME/releases/latest")
                 .get()

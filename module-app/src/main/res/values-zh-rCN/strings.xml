@@ -109,6 +109,7 @@
     <string name="total_errors_unit">%1$s 条</string>
     <string name="total_apps_unit">%1$s 个 (含系统应用)</string>
     <string name="generating_statistics">正在生成统计数据</string>
+    <string name="exporting_records">正在导出记录</string>
     <string name="module_not_fully_activated_tip">模块未完全激活，可能无法加载当前设置项，建议重新启动系统后重试。</string>
     <string name="show_errors_notify">推送错误通知</string>
     <string name="app_errors_tip">应用发生了未处理的异常而崩溃，点击查看详情或反馈给应用开发者。</string>

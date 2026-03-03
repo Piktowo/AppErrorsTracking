@@ -6,18 +6,58 @@
     android:orientation="vertical"
     android:padding="10dp">
 
-    <TextView
-        android:id="@+id/process_name_text"
+    <!-- App 信息头部：图标 + 名称 + 进程名 -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:ellipsize="end"
-        android:paddingLeft="14dp"
-        android:paddingRight="14dp"
-        android:singleLine="true"
-        android:textColor="@color/colorTextDark"
-        android:textSize="12sp"
-        android:visibility="gone" />
+        android:layout_marginBottom="8dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="6dp">
+
+        <ImageView
+            android:id="@+id/app_header_icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="12dp" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/app_header_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/colorTextGray"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/process_name_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:textColor="@color/colorTextDark"
+                android:textSize="11sp"
+                android:visibility="gone" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginBottom="6dp"
+        android:layout_marginHorizontal="14dp"
+        android:background="@color/colorTextDark"
+        android:alpha="0.3" />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -160,7 +200,7 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:layout_marginEnd="15dp"
-                    android:src="@drawable/ic_baseline_eject"
+                    android:src="@drawable/ic_restart"
                     app:tint="@color/colorTextGray" />
 
                 <TextView

@@ -113,6 +113,7 @@ object FrameworkHooker : YukiBaseHooker() {
     private fun shouldDispatchUiEvent(token: String): Boolean = synchronized(recentUiEvents) {
         val now = SystemClock.elapsedRealtime()
         recentUiEvents.entries.removeAll { now - it.value > 2500L }
+        if (recentUiEvents.size > 100) recentUiEvents.clear()
         if (recentUiEvents.containsKey(token)) false else {
             recentUiEvents[token] = now
             true
@@ -231,7 +232,7 @@ object FrameworkHooker : YukiBaseHooker() {
                 .firstMethodOrNull { name { it == "getCurrentProfileIds" || it == "getCurrentProfileIdsLocked" } }
                 ?.of(ActivityManagerServiceClass?.resolve()?.optional()?.firstFieldOrNull { name = "mUserController" }
                     ?.of(AppErrorsClass.resolve().optional().firstFieldOrNull { name = "mService" }?.of(errors)?.get())?.getQuietly())
-                ?.invokeQuietly<IntArray>()?.takeIf { it.isNotEmpty() }?.any { it != userId } ?: false
+                ?.invokeQuietly<IntArray>()?.takeIf { it.isNotEmpty() }?.none { it == userId } ?: false
         }
 
         /**

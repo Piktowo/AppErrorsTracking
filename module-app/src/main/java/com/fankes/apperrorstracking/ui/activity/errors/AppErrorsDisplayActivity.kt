@@ -31,6 +31,7 @@ import com.fankes.apperrorstracking.databinding.ActivityAppErrorsDisplayBinding
 import com.fankes.apperrorstracking.databinding.DiaAppErrorsDisplayBinding
 import com.fankes.apperrorstracking.locale.locale
 import com.fankes.apperrorstracking.ui.activity.base.BaseActivity
+import com.fankes.apperrorstracking.utils.factory.appIconOf
 import com.fankes.apperrorstracking.utils.factory.colorOf
 import com.fankes.apperrorstracking.utils.factory.getSerializableExtraCompat
 import com.fankes.apperrorstracking.utils.factory.navigate
@@ -85,6 +86,8 @@ class AppErrorsDisplayActivity : BaseActivity<ActivityAppErrorsDisplayBinding>()
             binding.closeAppItem.isVisible = appErrorsDisplay.isShowReopenButton.not() && appErrorsDisplay.isShowCloseAppButton
             binding.reopenAppItem.isVisible = appErrorsDisplay.isShowReopenButton
             binding.processNameText.text = locale.crashProcess(appErrorsDisplay.processName)
+            binding.appHeaderIcon.setImageDrawable(appIconOf(appErrorsDisplay.packageName))
+            binding.appHeaderName.text = appErrorsDisplay.appName.ifBlank { appErrorsDisplay.packageName }
             onShow { playDialogEnterAnimation(binding) }
             binding.appInfoItem.setOnClickListener {
                 cancel()
@@ -120,6 +123,8 @@ class AppErrorsDisplayActivity : BaseActivity<ActivityAppErrorsDisplayBinding>()
     /** 播放轻量入场动画，提升弹窗感知并降低突兀感 */
     private fun playDialogEnterAnimation(binding: DiaAppErrorsDisplayBinding) {
         listOf(
+            binding.appHeaderIcon,
+            binding.appHeaderName,
             binding.processNameText,
             binding.appInfoItem,
             binding.closeAppItem,

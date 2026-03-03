@@ -25,10 +25,9 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 /**
- * 创建当前线程池服务
- * @return [ExecutorService]
+ * 全局共享的线程池，按需创建线程并自动回收空闲线程
  */
-private val currentThreadPool get() = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
+private val sharedThreadPool: ExecutorService = Executors.newCachedThreadPool()
 
 /**
  * 创建并启动新的临时线程池
@@ -37,10 +36,5 @@ private val currentThreadPool get() = Executors.newFixedThreadPool(Runtime.getRu
  * @param block 方法块
  */
 fun newThread(block: () -> Unit) {
-    currentThreadPool.apply {
-        execute {
-            block()
-            shutdown()
-        }
-    }
+    sharedThreadPool.execute { block() }
 }
