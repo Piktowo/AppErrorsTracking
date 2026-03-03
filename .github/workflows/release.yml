@@ -19,8 +19,8 @@ jobs:
       - name: 准备 GitHub 环境变量
         run: |
           GITHUB_SHA=${{ github.sha }}
-          GITHUB_CI_COMMIT_ID=${GITHUB_SHA:0:7}
-          echo "GITHUB_CI_COMMIT_ID=$GITHUB_CI_COMMIT_ID" >> $GITHUB_ENV
+          CI_COMMIT_ID=${GITHUB_SHA:0:7}
+          echo "CI_COMMIT_ID=$CI_COMMIT_ID" >> $GITHUB_ENV
       - name: 配置 CMake
         uses: jwlawson/actions-setup-cmake@v1
         with:
@@ -67,7 +67,7 @@ jobs:
           TAG: ${{ github.ref_name }}
           COMMIT_SHA: ${{ github.sha }}
         run: |
-          COMMIT_ID="${GITHUB_CI_COMMIT_ID}"
+          COMMIT_ID="${CI_COMMIT_ID}"
           RELEASE_APK="${MODULE_RELEASE_APK_PATH}"
           NOTES=$(printf '## AppErrorsTracking %s\n\n\u8bf7\u5728\u4e0b\u65b9 Assets \u4e2d\u4e0b\u8f7d Release APK \u8fdb\u884c\u5b89\u88c5\u3002\n\n**\u6784\u5efa\u63d0\u4ea4**: [%s](https://github.com/%s/commit/%s)' \
             "$TAG" "$COMMIT_ID" "$REPO" "$COMMIT_SHA")

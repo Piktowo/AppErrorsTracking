@@ -33,8 +33,8 @@ jobs:
       - name: 准备 GitHub 环境变量
         run: |
           GITHUB_SHA=${{ github.sha }}
-          GITHUB_CI_COMMIT_ID=${GITHUB_SHA:0:7}
-          echo "GITHUB_CI_COMMIT_ID=$GITHUB_CI_COMMIT_ID" >> $GITHUB_ENV
+          CI_COMMIT_ID=${GITHUB_SHA:0:7}
+          echo "CI_COMMIT_ID=$CI_COMMIT_ID" >> $GITHUB_ENV
       - name: 配置 CMake
         uses: jwlawson/actions-setup-cmake@v1
         with:
@@ -80,12 +80,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: ${{ env.MODULE_DEBUG_APK_PATH }}
-          name: AppErrorsTracking-module-debug-${{ github.event.head_commit.id }}
+          name: AppErrorsTracking-module-debug-${{ github.sha }}
       - name: 上传产物 (模块正式版)
         uses: actions/upload-artifact@v4
         with:
           path: ${{ env.MODULE_RELEASE_APK_PATH }}
-          name: AppErrorsTracking-module-release-${{ github.event.head_commit.id }}
+          name: AppErrorsTracking-module-release-${{ github.sha }}
       - name: 推送产物到 Telegram
         run: |
           export module_debug=$(find ${{ env.MODULE_APK_OUTPUT_PATH }}/debug -name "*.apk")
@@ -102,7 +102,7 @@ jobs:
           REPO: ${{ github.repository }}
         run: |
           TAG="snapshot"
-          COMMIT_ID="${GITHUB_CI_COMMIT_ID}"
+          COMMIT_ID="${CI_COMMIT_ID}"
           DEBUG_APK="${MODULE_DEBUG_APK_PATH}"
           RELEASE_APK="${MODULE_RELEASE_APK_PATH}"
           gh release delete "$TAG" --yes 2>/dev/null || true

@@ -22,8 +22,8 @@ jobs:
       - name: 准备 GitHub 环境变量
         run: |
           GITHUB_SHA=${{ github.sha }}
-          GITHUB_CI_COMMIT_ID=${GITHUB_SHA:0:7}
-          echo "GITHUB_CI_COMMIT_ID=$GITHUB_CI_COMMIT_ID" >> $GITHUB_ENV
+          CI_COMMIT_ID=${GITHUB_SHA:0:7}
+          echo "CI_COMMIT_ID=$CI_COMMIT_ID" >> $GITHUB_ENV
       - name: 配置 CMake
         uses: jwlawson/actions-setup-cmake@v1
         with:
