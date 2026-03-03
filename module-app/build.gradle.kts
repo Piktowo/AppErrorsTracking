@@ -60,7 +60,7 @@ androidComponents {
             val currentSuffix = gropify.github.ci.commit.id?.let { suffix ->
                 if (suffix.isNotBlank()) "-$suffix" else ""
             }
-            val currentVersion = "${output.versionName.get()}$currentSuffix(${output.versionCode.get()})"
+            val currentVersion = "${output.versionName.get()}$currentSuffix"
             if (output is com.android.build.api.variant.impl.VariantOutputImpl)
                 output.outputFileName.set("${gropify.project.name}-module-v$currentVersion-$currentType.apk")
         }
