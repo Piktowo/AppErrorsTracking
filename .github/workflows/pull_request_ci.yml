@@ -67,19 +67,19 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: ${{ env.MODULE_DEBUG_APK_PATH }}
-          name: AppErrorsTracking-module-debug-${{ github.event.head_commit.id }}
+          name: AppErrorsTracking-module-debug-${{ github.sha }}
       - name: Upload Artifacts (Module-Release)
         uses: actions/upload-artifact@v4
         with:
           path: ${{ env.MODULE_RELEASE_APK_PATH }}
-          name: AppErrorsTracking-module-release-${{ github.event.head_commit.id }}
+          name: AppErrorsTracking-module-release-${{ github.sha }}
       - name: Upload Artifacts (Demo-Debug)
         uses: actions/upload-artifact@v4
         with:
           path: ${{ env.DEMO_DEBUG_APK_PATH }}
-          name: AppErrorsTracking-demo-debug-${{ github.event.head_commit.id }}
+          name: AppErrorsTracking-demo-debug-${{ github.sha }}
       - name: Upload Artifacts (Demo-Release)
         uses: actions/upload-artifact@v4
         with:
           path: ${{ env.DEMO_RELEASE_APK_PATH }}
-          name: AppErrorsTracking-demo-release-${{ github.event.head_commit.id }}
+          name: AppErrorsTracking-demo-release-${{ github.sha }}
