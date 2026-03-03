@@ -135,7 +135,7 @@
   <string name="this_contents_clear_when_restarts_tip">これは再起動後にクリアされます</string>
   <string name="when_logger_how_to_show_tip">現在のデバッグログ表示の優先度のフィルタ条件を設定できます。</string>
   <string name="enable_anonymous_statistics">匿名の統計を有効化</string>
-  <string name="enable_anonymous_statistics_tip">この機能を有効化すると、Microsoft App Center を使用してアプリ関連の診断データを匿名で送信し、アプリの機能を向上させる事ができます。\nこの機能を有効化、無効化するにはアプリを再起動する必要があります。</string>
+  <string name="enable_anonymous_statistics_tip">この機能を有効化すると、Firebase Analytics を使用してアプリ関連の診断データを匿名で送信し、アプリの機能を向上させる事ができます。\nこの機能を有効化、無効化するにはアプリを再起動する必要があります。</string>
   <string name="go_it_now">今すぐ確認</string>
   <string name="access_root_fail_tip">現在、root 権限を取得できません。デバイスが root 化されている事を確認し、root 権限を付与している事を確認して root 権限の付与に同意してください。\nMagisk と Shamiko モジュールをインストールしている場合は、ホワイトリストモードになっているかどうか確認をしてください。(ホワイトリストモードでは root 権限の許可ができなくなります)</string>
   <string name="global_config">グローバル構成</string>
