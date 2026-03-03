@@ -64,6 +64,10 @@ jobs:
           key: gradle-builds-core-${{ github.sha }}
           restore-keys: |
             gradle-builds
+      - name: Decode Signing Keystore
+        run: |
+          mkdir -p .secret
+          echo "${{ secrets.SIGNING_KEY_BASE64 }}" | base64 -d > .secret/universal.p12
       - name: Build with Gradle
         run: |
           ./gradlew :module-app:assembleDebug
