@@ -31,6 +31,7 @@ import com.fankes.apperrorstracking.databinding.ActivityAppErrorsDisplayBinding
 import com.fankes.apperrorstracking.databinding.DiaAppErrorsDisplayBinding
 import com.fankes.apperrorstracking.locale.locale
 import com.fankes.apperrorstracking.ui.activity.base.BaseActivity
+import com.fankes.apperrorstracking.utils.tool.AppAnalyticsTool
 import com.fankes.apperrorstracking.utils.factory.appIconOf
 import com.fankes.apperrorstracking.utils.factory.colorOf
 import com.fankes.apperrorstracking.utils.factory.getSerializableExtraCompat
@@ -66,6 +67,8 @@ class AppErrorsDisplayActivity : BaseActivity<ActivityAppErrorsDisplayBinding>()
             ?: return toastAndFinish(name = "AppErrorsDisplay")
         /** 设置 Material 3 动态颜色主题 */
         if (ConfigData.isEnableMaterial3StyleAppErrorsDialog) setTheme(R.style.Theme_AppErrorsTracking_Translucent_Material3)
+        /** 统计崩溃弹窗弹出次数 */
+        AppAnalyticsTool.trackEvent("crash_dialog_shown", hashMapOf("package_name" to appErrorsDisplay.packageName))
         /** 显示对话框 */
         showDialog<DiaAppErrorsDisplayBinding>(ConfigData.isEnableMaterial3StyleAppErrorsDialog.not()) {
             title = appErrorsDisplay.title
