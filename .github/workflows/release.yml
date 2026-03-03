@@ -61,15 +61,18 @@ jobs:
           ./gradlew :module-app:assembleRelease
           echo "MODULE_RELEASE_APK_PATH=$(find ${{ env.MODULE_APK_OUTPUT_PATH }}/release -name '*.apk')" >> $GITHUB_ENV
       - name: Publish Release
-        run: |
-          gh release create "${{ github.ref_name }}" \
-            --title "AppErrorsTracking ${{ github.ref_name }}" \
-            --notes "## AppErrorsTracking ${{ github.ref_name }}
-
-请在下方 Assets 中下载 Release APK 进行安装。
-
-**构建提交**: [${{ env.GITHUB_CI_COMMIT_ID }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})" \
-            --latest \
-            ${{ env.MODULE_RELEASE_APK_PATH }}
         env:
           GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+          COMMIT_SHA: ${{ github.sha }}
+        run: |
+          COMMIT_ID="${GITHUB_CI_COMMIT_ID}"
+          RELEASE_APK="${MODULE_RELEASE_APK_PATH}"
+          NOTES=$(printf '## AppErrorsTracking %s\n\n\u8bf7\u5728\u4e0b\u65b9 Assets \u4e2d\u4e0b\u8f7d Release APK \u8fdb\u884c\u5b89\u88c5\u3002\n\n**\u6784\u5efa\u63d0\u4ea4**: [%s](https://github.com/%s/commit/%s)' \
+            "$TAG" "$COMMIT_ID" "$REPO" "$COMMIT_SHA")
+          gh release create "$TAG" \
+            --title "AppErrorsTracking $TAG" \
+            --notes "$NOTES" \
+            --latest \
+            "$RELEASE_APK"

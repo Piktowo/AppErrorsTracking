@@ -95,20 +95,23 @@ jobs:
            -F module_debug="@$module_debug" \
            -F module_release="@$module_release"
       - name: Publish Snapshot Pre-release
-        run: |
-          TAG="snapshot"
-          gh release delete "$TAG" --yes 2>/dev/null || true
-          git push origin ":refs/tags/$TAG" 2>/dev/null || true
-          gh release create "$TAG" \
-            --title "Snapshot (${{ env.GITHUB_CI_COMMIT_ID }})" \
-            --notes "自动构建的测试版本 🚧
-
-**提交**: [${{ env.GITHUB_CI_COMMIT_ID }}](${{ github.event.head_commit.url }})
-**作者**: ${{ github.event.head_commit.author.name }}
-
-> ⚠️ 此为自动构建的测试版，可能不稳定，正式版请关注 [Releases](https://github.com/${{ github.repository }}/releases) 页面。" \
-            --prerelease \
-            ${{ env.MODULE_DEBUG_APK_PATH }} \
-            ${{ env.MODULE_RELEASE_APK_PATH }}
         env:
           GH_TOKEN: ${{ github.token }}
+          COMMIT_URL: ${{ github.event.head_commit.url }}
+          COMMIT_AUTHOR: ${{ github.event.head_commit.author.name }}
+          REPO: ${{ github.repository }}
+        run: |
+          TAG="snapshot"
+          COMMIT_ID="${GITHUB_CI_COMMIT_ID}"
+          DEBUG_APK="${MODULE_DEBUG_APK_PATH}"
+          RELEASE_APK="${MODULE_RELEASE_APK_PATH}"
+          gh release delete "$TAG" --yes 2>/dev/null || true
+          git push origin ":refs/tags/$TAG" 2>/dev/null || true
+          NOTES=$(printf '自动构建的测试版本 \U0001F6A7\n\n**提交**: [%s](%s)\n**作者**: %s\n\n> \u26a0\ufe0f 此为自动构建的测试版，可能不稳定，正式版请关注 [Releases](https://github.com/%s/releases) 页面。' \
+            "$COMMIT_ID" "$COMMIT_URL" "$COMMIT_AUTHOR" "$REPO")
+          gh release create "$TAG" \
+            --title "Snapshot ($COMMIT_ID)" \
+            --notes "$NOTES" \
+            --prerelease \
+            "$DEBUG_APK" \
+            "$RELEASE_APK"
