@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "73142530006",
+    "project_id": "apperrorstracking",
+    "storage_bucket": "apperrorstracking.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:73142530006:android:19ca84da4ef9114621be77",
+        "android_client_info": {
+          "package_name": "com.fankes.apperrorstracking"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCBmMHxaipgHzs4p4bHfsSjVdBSJ2YYi8I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -25,23 +25,19 @@ package com.fankes.apperrorstracking.utils.tool
 
 import android.app.Application
 import android.widget.CompoundButton
-import com.fankes.apperrorstracking.generated.ModuleAppProperties
+import com.google.firebase.FirebaseApp
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.highcapable.yukihookapi.hook.factory.prefs
 import com.highcapable.yukihookapi.hook.xposed.prefs.data.PrefsData
-import com.microsoft.appcenter.AppCenter
-import com.microsoft.appcenter.analytics.Analytics
-import com.microsoft.appcenter.crashes.Crashes
 
 /**
- * Microsoft App Center 工具
+ * Firebase Crashlytics 崩溃收集工具
  */
 object AppAnalyticsTool {
 
-    /** App Secret */
-    private const val APP_CENTER_SECRET = ModuleAppProperties.APP_CENTER_SECRET
-
     /** 启用匿名统计收集使用情况功能 */
-    private val ENABLE_APP_CENTER_ANALYTICS = PrefsData("_enable_app_center_analytics", true)
+    private val ENABLE_ANALYTICS = PrefsData("_enable_app_center_analytics", true)
 
     /** 当前实例 */
     private var instance: Application? = null
@@ -50,21 +46,25 @@ object AppAnalyticsTool {
      * 是否启用匿名统计收集使用情况功能
      * @return [Boolean]
      */
-    private var isEnableAppCenterAnalytics
-        get() = instance?.prefs()?.get(ENABLE_APP_CENTER_ANALYTICS) ?: true
+    private var isEnableAnalytics
+        get() = instance?.prefs()?.get(ENABLE_ANALYTICS) ?: true
         set(value) {
-            instance?.prefs()?.edit { put(ENABLE_APP_CENTER_ANALYTICS, value) }
+            instance?.prefs()?.edit { put(ENABLE_ANALYTICS, value) }
         }
 
-    /** 是否可用 */
-    val isAvailable = APP_CENTER_SECRET.isNotBlank()
+    /** 是否可用 (Firebase 始终可用) */
+    val isAvailable = true
 
     /** 绑定到 [CompoundButton] 自动设置选中状态 */
     fun CompoundButton.bindAppAnalytics() {
-        isChecked = isEnableAppCenterAnalytics
+        isChecked = isEnableAnalytics
         setOnCheckedChangeListener { button, isChecked ->
             if (button.isPressed.not()) return@setOnCheckedChangeListener
-            isEnableAppCenterAnalytics = isChecked
+            isEnableAnalytics = isChecked
+            runCatching {
+                FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(isChecked)
+                FirebaseAnalytics.getInstance(instance!!).setAnalyticsCollectionEnabled(isChecked)
+            }
         }
     }
 
@@ -74,17 +74,23 @@ object AppAnalyticsTool {
      * @param data 事件详细内容 - 默认空
      */
     fun trackEvent(name: String, data: HashMap<String, String>? = null) {
-        if (data != null) Analytics.trackEvent(name, data)
-        else Analytics.trackEvent(name)
+        if (!isEnableAnalytics) return
+        val analytics = instance?.let { FirebaseAnalytics.getInstance(it) } ?: return
+        val bundle = android.os.Bundle()
+        data?.forEach { (k, v) -> bundle.putString(k, v) }
+        analytics.logEvent(name, bundle)
     }
 
     /**
-     * 初始化 App Center
+     * 初始化 Firebase Crashlytics
      * @param instance 实例
      */
     fun init(instance: Application) {
         this.instance = instance
-        if (isEnableAppCenterAnalytics && isAvailable)
-            AppCenter.start(instance, APP_CENTER_SECRET, Analytics::class.java, Crashes::class.java)
+        runCatching { FirebaseApp.initializeApp(instance) }
+        runCatching {
+            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(isEnableAnalytics)
+            FirebaseAnalytics.getInstance(instance).setAnalyticsCollectionEnabled(isEnableAnalytics)
+        }
     }
 }

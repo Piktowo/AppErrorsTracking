@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.flexi.locale)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.firebase.crashlytics.plugin)
 }
 
 android {
@@ -72,8 +74,9 @@ dependencies {
     implementation(libs.kavaref.core)
     implementation(libs.kavaref.extension)
     implementation(libs.betterandroid.ui.extension)
-    implementation(libs.microsoft.appcenter.analytics)
-    implementation(libs.microsoft.appcenter.crashes)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.crashlytics)
+    implementation(libs.firebase.analytics)
     implementation(libs.libsu)
     implementation(libs.drawabletoolbox)
     implementation(libs.gson)
