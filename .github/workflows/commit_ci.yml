@@ -15,6 +15,8 @@ jobs:
     name: Build CI
     if: ${{ success() }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     env:
       MODULE_APK_OUTPUT_PATH: 'module-app/build/outputs/apk'
       TG_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -92,3 +94,21 @@ jobs:
           curl -v "https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMediaGroup?chat_id=${TG_CHAT_ID}&media=%5B%7B%22type%22%3A%22document%22%2C%20%22media%22%3A%22attach%3A%2F%2Fmodule_debug%22%7D%2C%7B%22type%22%3A%22document%22%2C%20%22media%22%3A%22attach%3A%2F%2Fmodule_release%22%2C%22parse_mode%22%3A%22MarkdownV2%22%2C%22caption%22:${ESCAPED}%7D%5D" \
            -F module_debug="@$module_debug" \
            -F module_release="@$module_release"
+      - name: Publish Snapshot Pre-release
+        run: |
+          TAG="snapshot"
+          gh release delete "$TAG" --yes 2>/dev/null || true
+          git push origin ":refs/tags/$TAG" 2>/dev/null || true
+          gh release create "$TAG" \
+            --title "Snapshot (${{ env.GITHUB_CI_COMMIT_ID }})" \
+            --notes "自动构建的测试版本 🚧
+
+**提交**: [${{ env.GITHUB_CI_COMMIT_ID }}](${{ github.event.head_commit.url }})
+**作者**: ${{ github.event.head_commit.author.name }}
+
+> ⚠️ 此为自动构建的测试版，可能不稳定，正式版请关注 [Releases](https://github.com/${{ github.repository }}/releases) 页面。" \
+            --prerelease \
+            ${{ env.MODULE_DEBUG_APK_PATH }} \
+            ${{ env.MODULE_RELEASE_APK_PATH }}
+        env:
+          GH_TOKEN: ${{ github.token }}
