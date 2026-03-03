@@ -182,7 +182,10 @@ object FrameworkHooker : YukiBaseHooker() {
         val userId by lazy {
             ProcessRecordClass.resolve().optional()
                 .firstFieldOrNull { name = "userId" }
-                ?.of(proc)?.get<Int>() ?: 0
+                ?.of(proc)?.get<Int>()
+                ?: runCatching {
+                    proc?.javaClass?.getField("userId")?.get(proc) as? Int
+                }.getOrNull() ?: 0
         }
 
         /**
@@ -202,7 +205,10 @@ object FrameworkHooker : YukiBaseHooker() {
         val processName by lazy {
             ProcessRecordClass.resolve().optional()
                 .firstFieldOrNull { name = "processName" }
-                ?.of(proc)?.get<String>() ?: ""
+                ?.of(proc)?.get<String>()
+                ?: runCatching {
+                    proc?.javaClass?.getField("processName")?.get(proc) as? String
+                }.getOrNull() ?: ""
         }
 
         /**
