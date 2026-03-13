@@ -103,7 +103,10 @@ object FrameworkHooker : YukiBaseHooker() {
     private enum class ErrorUiMode { DIALOG, NOTIFY, TOAST, NONE }
 
     /** 包名白名单规则 (安全限制) */
-    private val packageNameRegex = Regex("^[a-zA-Z0-9_]+(?:\\.[a-zA-Z0-9_]+)+$")
+    private const val PACKAGE_NAME_REGEX_PATTERN = "^[a-zA-Z0-9_]+(?:\\.[a-zA-Z0-9_]+)+"
+    
+    /** 包名白名单规则 (安全限制) */
+    private val packageNameRegex = Regex(PACKAGE_NAME_REGEX_PATTERN)
 
     /**
      * 当前崩溃事件是否可展示 UI
@@ -138,15 +141,20 @@ object FrameworkHooker : YukiBaseHooker() {
          * @return [Any] or null
          */
         private val pkgList by lazy {
-            ProcessRecordClass.resolve().optional(silent = true)
-                .firstMethodOrNull {
-                    name = "getPkgList"
-                    emptyParameters()
-                }?.of(proc)?.invoke()
-                ?: ProcessRecordClass.resolve().optional(silent = true)
-                    .firstFieldOrNull {
-                        name { it.endsWith("pkgList", true) }
-                    }?.of(proc)?.get()
+            runCatching {
+                ProcessRecordClass.resolve().optional(silent = true)
+                    .firstMethodOrNull {
+                        name = "getPkgList"
+                        emptyParameters()
+                    }?.of(proc)?.invoke()
+                    ?: ProcessRecordClass.resolve().optional(silent = true)
+                        .firstFieldOrNull {
+                            name { it.endsWith("pkgList", true) }
+                        }?.of(proc)?.get()
+            }.onFailure {
+                YLog.warn("Failed to get pkgList: ${it.message}")
+                null
+            }.getOrNull()
         }
 
         /**
@@ -154,14 +162,19 @@ object FrameworkHooker : YukiBaseHooker() {
          * @return [Int]
          */
         private val pkgListSize by lazy {
-            PackageListClass?.resolve()?.optional(silent = true)
-                ?.firstMethodOrNull {
-                    name = "size"
-                    emptyParameters()
-                }?.of(pkgList)?.invoke()
-                ?: ProcessRecordClass.resolve().optional(silent = true)
-                    .firstFieldOrNull { name = "pkgList" }
-                    ?.of(proc)?.get<ArrayMap<*, *>>()?.size ?: -1
+            runCatching {
+                PackageListClass?.resolve()?.optional(silent = true)
+                    ?.firstMethodOrNull {
+                        name = "size"
+                        emptyParameters()
+                    }?.of(pkgList)?.invoke()
+                    ?: ProcessRecordClass.resolve().optional(silent = true)
+                        .firstFieldOrNull { name = "pkgList" }
+                        ?.of(proc)?.get<ArrayMap<*, *>>()?.size ?: -1
+            }.onFailure {
+                YLog.warn("Failed to get pkgListSize: ${it.message}")
+                -1
+            }.getOrElse { -1 }
         }
 
         /**
@@ -169,10 +182,15 @@ object FrameworkHooker : YukiBaseHooker() {
          * @return [Int]
          */
         val pid by lazy {
-            ProcessRecordClass.resolve().optional()
-                .firstFieldOrNull {
-                    name { it == "mPid" || it == "pid" }
-                }?.of(proc)?.get<Int>() ?: 0
+            runCatching {
+                ProcessRecordClass.resolve().optional()
+                    .firstFieldOrNull {
+                        name { it == "mPid" || it == "pid" }
+                    }?.of(proc)?.get<Int>() ?: 0
+            }.onFailure {
+                YLog.warn("Failed to get pid: ${it.message}")
+                0
+            }.getOrElse { 0 }
         }
 
         /**
@@ -180,12 +198,17 @@ object FrameworkHooker : YukiBaseHooker() {
          * @return [Int]
          */
         val userId by lazy {
-            ProcessRecordClass.resolve().optional()
-                .firstFieldOrNull { name = "userId" }
-                ?.of(proc)?.get<Int>()
-                ?: runCatching {
-                    proc?.javaClass?.getField("userId")?.get(proc) as? Int
-                }.getOrNull() ?: 0
+            runCatching {
+                ProcessRecordClass.resolve().optional()
+                    .firstFieldOrNull { name = "userId" }
+                    ?.of(proc)?.get<Int>()
+                    ?: runCatching {
+                        proc?.javaClass?.getField("userId")?.get(proc) as? Int
+                    }.getOrNull() ?: 0
+            }.onFailure {
+                YLog.warn("Failed to get userId: ${it.message}")
+                0
+            }.getOrElse { 0 }
         }
 
         /**
@@ -193,9 +216,14 @@ object FrameworkHooker : YukiBaseHooker() {
          * @return [ApplicationInfo] or null
          */
         val appInfo by lazy {
-            ProcessRecordClass.resolve().optional()
-                .firstFieldOrNull { name = "info" }
-                ?.of(proc)?.get<ApplicationInfo>()
+            runCatching {
+                ProcessRecordClass.resolve().optional()
+                    .firstFieldOrNull { name = "info" }
+                    ?.of(proc)?.get<ApplicationInfo>()
+            }.onFailure {
+                YLog.warn("Failed to get appInfo: ${it.message}")
+                null
+            }.getOrNull()
         }
 
         /**
@@ -203,12 +231,17 @@ object FrameworkHooker : YukiBaseHooker() {
          * @return [String]
          */
         val processName by lazy {
-            ProcessRecordClass.resolve().optional()
-                .firstFieldOrNull { name = "processName" }
-                ?.of(proc)?.get<String>()
-                ?: runCatching {
-                    proc?.javaClass?.getField("processName")?.get(proc) as? String
-                }.getOrNull() ?: ""
+            runCatching {
+                ProcessRecordClass.resolve().optional()
+                    .firstFieldOrNull { name = "processName" }
+                    ?.of(proc)?.get<String>()
+                    ?: runCatching {
+                        proc?.javaClass?.getField("processName")?.get(proc) as? String
+                    }.getOrNull() ?: ""
+            }.onFailure {
+                YLog.warn("Failed to get processName: ${it.message}")
+                ""
+            }.getOrElse { "" }
         }
 
         /**
@@ -234,11 +267,16 @@ object FrameworkHooker : YukiBaseHooker() {
          * @return [Boolean]
          */
         val isBackgroundProcess by lazy {
-            UserControllerClass.resolve().optional()
-                .firstMethodOrNull { name { it == "getCurrentProfileIds" || it == "getCurrentProfileIdsLocked" } }
-                ?.of(ActivityManagerServiceClass?.resolve()?.optional()?.firstFieldOrNull { name = "mUserController" }
-                    ?.of(AppErrorsClass.resolve().optional().firstFieldOrNull { name = "mService" }?.of(errors)?.get())?.getQuietly())
-                ?.invokeQuietly<IntArray>()?.takeIf { it.isNotEmpty() }?.none { it == userId } ?: false
+            runCatching {
+                UserControllerClass.resolve().optional()
+                    .firstMethodOrNull { name { it == "getCurrentProfileIds" || it == "getCurrentProfileIdsLocked" } }
+                    ?.of(ActivityManagerServiceClass?.resolve()?.optional()?.firstFieldOrNull { name = "mUserController" }
+                        ?.of(AppErrorsClass.resolve().optional().firstFieldOrNull { name = "mService" }?.of(errors)?.get())?.getQuietly())
+                    ?.invokeQuietly<IntArray>()?.takeIf { it.isNotEmpty() }?.none { it == userId } ?: false
+            }.onFailure {
+                YLog.warn("Failed to get isBackgroundProcess: ${it.message}")
+                false
+            }.getOrElse { false }
         }
 
         /**
@@ -246,11 +284,16 @@ object FrameworkHooker : YukiBaseHooker() {
          * @return [Boolean]
          */
         val isRepeatingCrash by lazy {
-            resultData?.let {
-                AppErrorDialog_DataClass.resolve().optional()
-                    .firstFieldOrNull { name = "repeating" }
-                    ?.of(it)?.get<Boolean>() == true
-            } ?: false
+            runCatching {
+                resultData?.let {
+                    AppErrorDialog_DataClass.resolve().optional()
+                        .firstFieldOrNull { name = "repeating" }
+                        .of(it)?.get<Boolean>() == true
+                } ?: false
+            }.onFailure {
+                YLog.warn("Failed to get isRepeatingCrash: ${it.message}")
+                false
+            }.getOrElse { false }
         }
     }
 
@@ -330,33 +373,39 @@ object FrameworkHooker : YukiBaseHooker() {
                 mutedErrorsIfRestartApps.clear()
             }
             onPushAppListData { filters ->
-                appContext?.let { context ->
-                    context.listOfPackages()
-                        .filter { it.packageName.let { e -> e != "android" && e != BuildConfigWrapper.APPLICATION_ID } }
-                        .let { info ->
-                            arrayListOf<AppInfoBean>().apply {
-                                if (info.isNotEmpty())
-                                    (if (filters.name.isNotBlank()) info.filter {
-                                        it.packageName.contains(filters.name) || context.appNameOf(it.packageName).contains(filters.name)
-                                    } else info).let { result ->
-                                        /**
-                                         * 是否为系统应用
-                                         * @return [Boolean]
-                                         */
-                                        fun PackageInfo.isSystemApp() = applicationInfo?.let {
-                                            (it.flags and ApplicationInfo.FLAG_SYSTEM) != 0
-                                        } ?: false
-                                        when (filters.type) {
-                                            AppFiltersType.USER -> result.filter { it.isSystemApp().not() }
-                                            AppFiltersType.SYSTEM -> result.filter { it.isSystemApp() }
-                                            AppFiltersType.ALL -> result
-                                        }
-                                    }.sortedByDescending { it.lastUpdateTime }
-                                        .forEach { add(AppInfoBean(name = context.appNameOf(it.packageName), packageName = it.packageName)) }
-                                else YLog.warn("Fetched installed packages but got empty list")
+                runCatching {
+                    appContext?.let { context ->
+                        context.listOfPackages()
+                            .filter { it.packageName.let { e -> e != "android" && e != BuildConfigWrapper.APPLICATION_ID } }
+                            .let { info ->
+                                arrayListOf<AppInfoBean>().apply {
+                                    if (info.isNotEmpty())
+                                        (if (filters.name.isNotBlank()) info.filter {
+                                            it.packageName.contains(filters.name) || context.appNameOf(it.packageName).contains(filters.name)
+                                        } else info).let { result ->
+                                            /**
+                                             * 是否为系统应用
+                                             * @return [Boolean]
+                                             */
+                                            fun PackageInfo.isSystemApp() = applicationInfo?.let {
+                                                (it.flags and ApplicationInfo.FLAG_SYSTEM) != 0
+                                            } ?: false
+                                            when (filters.type) {
+                                                AppFiltersType.USER -> result.filter { it.isSystemApp().not() }
+                                                AppFiltersType.SYSTEM -> result.filter { it.isSystemApp() }
+                                                AppFiltersType.ALL -> result
+                                            }
+                                        }.sortedByDescending { it.lastUpdateTime }
+                                            .forEach { add(AppInfoBean(name = context.appNameOf(it.packageName), packageName = it.packageName)) }
+                                    else YLog.warn("Fetched installed packages but got empty list")
+                                }
                             }
-                        }
-                } ?: arrayListOf()
+                    } ?: arrayListOf()
+                }.onFailure {
+                    YLog.error("Failed to push app list data: ${it.message}")
+                    it.printStackTrace()
+                    arrayListOf()
+                }.getOrElse { arrayListOf() }
             }
         }
     }

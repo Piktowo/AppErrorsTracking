@@ -86,10 +86,19 @@ object ConfigData {
      * @param key 键值名称
      * @return [Set]<[String]>
      */
-    internal fun getStringSet(key: String) = when (instance) {
-        is Context -> (instance as Context).prefs().getStringSet(key, setOf())
-        is PackageParam -> (instance as PackageParam).prefs.getStringSet(key, setOf())
-        else -> error("Unknown type for get prefs data")
+    internal fun getStringSet(key: String): Set<String> {
+        if (instance == null) {
+            YLog.warn("ConfigData is not initialized, returning empty set")
+            return setOf()
+        }
+        return when (instance) {
+            is Context -> (instance as Context).prefs().getStringSet(key, setOf())
+            is PackageParam -> (instance as PackageParam).prefs.getStringSet(key, setOf())
+            else -> {
+                YLog.warn("Unknown type for get prefs data, returning empty set")
+                setOf()
+            }
+        }
     }
 
     /**
@@ -98,10 +107,14 @@ object ConfigData {
      * @param value 键值内容
      */
     internal fun putStringSet(key: String, value: Set<String>) {
+        if (instance == null) {
+            YLog.warn("ConfigData is not initialized, cannot put data")
+            return
+        }
         when (instance) {
             is Context -> (instance as Context).prefs().edit { putStringSet(key, value) }
             is PackageParam -> YLog.warn("Not support for this method")
-            else -> error("Unknown type for put prefs data")
+            else -> YLog.warn("Unknown type for put prefs data")
         }
     }
 
@@ -110,10 +123,19 @@ object ConfigData {
      * @param data 键值数据模板
      * @return [Int]
      */
-    internal fun getInt(data: PrefsData<Int>) = when (instance) {
-        is Context -> (instance as Context).prefs().get(data)
-        is PackageParam -> (instance as PackageParam).prefs.get(data)
-        else -> error("Unknown type for get prefs data")
+    internal fun getInt(data: PrefsData<Int>): Int {
+        if (instance == null) {
+            YLog.warn("ConfigData is not initialized, returning default value")
+            return data.defaultValue
+        }
+        return when (instance) {
+            is Context -> (instance as Context).prefs().get(data)
+            is PackageParam -> (instance as PackageParam).prefs.get(data)
+            else -> {
+                YLog.warn("Unknown type for get prefs data, returning default value")
+                data.defaultValue
+            }
+        }
     }
 
     /**
@@ -122,10 +144,14 @@ object ConfigData {
      * @param value 键值内容
      */
     internal fun putInt(data: PrefsData<Int>, value: Int) {
+        if (instance == null) {
+            YLog.warn("ConfigData is not initialized, cannot put data")
+            return
+        }
         when (instance) {
             is Context -> (instance as Context).prefs().edit { put(data, value) }
             is PackageParam -> YLog.warn("Not support for this method")
-            else -> error("Unknown type for put prefs data")
+            else -> YLog.warn("Unknown type for put prefs data")
         }
     }
 
@@ -134,10 +160,19 @@ object ConfigData {
      * @param data 键值数据模板
      * @return [Boolean]
      */
-    internal fun getBoolean(data: PrefsData<Boolean>) = when (instance) {
-        is Context -> (instance as Context).prefs().get(data)
-        is PackageParam -> (instance as PackageParam).prefs.get(data)
-        else -> error("Unknown type for get prefs data")
+    internal fun getBoolean(data: PrefsData<Boolean>): Boolean {
+        if (instance == null) {
+            YLog.warn("ConfigData is not initialized, returning default value")
+            return data.defaultValue
+        }
+        return when (instance) {
+            is Context -> (instance as Context).prefs().get(data)
+            is PackageParam -> (instance as PackageParam).prefs.get(data)
+            else -> {
+                YLog.warn("Unknown type for get prefs data, returning default value")
+                data.defaultValue
+            }
+        }
     }
 
     /**
@@ -146,10 +181,14 @@ object ConfigData {
      * @param value 键值内容
      */
     internal fun putBoolean(data: PrefsData<Boolean>, value: Boolean) {
+        if (instance == null) {
+            YLog.warn("ConfigData is not initialized, cannot put data")
+            return
+        }
         when (instance) {
             is Context -> (instance as Context).prefs().edit { put(data, value) }
             is PackageParam -> YLog.warn("Not support for this method")
-            else -> error("Unknown type for put prefs data")
+            else -> YLog.warn("Unknown type for put prefs data")
         }
     }
 

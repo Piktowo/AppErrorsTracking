@@ -38,6 +38,7 @@ import org.json.JSONObject
 import java.io.IOException
 import java.io.Serializable
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 /**
  * 获取 GitHub Release 最新版本工具类
@@ -50,8 +51,20 @@ object GithubReleaseTool {
     /** 仓库名称 */
     private const val REPO_NAME = "AppErrorsTracking"
 
+    /** GitHub API 基础 URL */
+    private const val GITHUB_API_BASE_URL = "https://api.github.com/repos"
+
+    /** GitHub Release 最新版本 API 路径 */
+    private val GITHUB_RELEASE_LATEST_URL by lazy {
+        "$GITHUB_API_BASE_URL/$REPO_AUTHOR/$REPO_NAME/releases/latest"
+    }
+
     /** 复用的 HTTP 客户端实例 */
-    private val httpClient = OkHttpClient()
+    private val httpClient = OkHttpClient.Builder()
+        .connectTimeout(10, TimeUnit.SECONDS)
+        .readTimeout(10, TimeUnit.SECONDS)
+        .writeTimeout(10, TimeUnit.SECONDS)
+        .build()
 
     /**
      * 获取最新版本信息
@@ -62,11 +75,20 @@ object GithubReleaseTool {
     fun checkingForUpdate(context: Context, version: String, result: (String, () -> Unit) -> Unit) = runCatching {
         httpClient.newCall(
             Request.Builder()
-                .url("https://api.github.com/repos/$REPO_AUTHOR/$REPO_NAME/releases/latest")
+                .url(GITHUB_RELEASE_LATEST_URL)
                 .get()
                 .build()
         ).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {}
+            override fun onFailure(call: Call, e: IOException) {
+                e.printStackTrace()
+                (context as? Activity?)?.runOnUiThread {
+                    context.showDialog {
+                        title = locale.networkError
+                        msg = locale.networkErrorTip
+                        confirmButton()
+                    }
+                }
+            }
 
             override fun onResponse(call: Call, response: Response) = runCatching {
                 JSONObject(response.body.string()).apply {

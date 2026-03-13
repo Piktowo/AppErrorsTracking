@@ -201,6 +201,8 @@ fun Context.appMinSdkOf(packageName: String = getPackageName()) = getPackageInfo
  */
 fun Context.appCpuAbiOf(packageName: String = getPackageName()) = runCatching {
     ApplicationInfoClass.field { name = "primaryCpuAbi" }.get(getPackageInfoCompat(packageName)?.applicationInfo).string()
+}.onFailure {
+    YLog.warn("Failed to get CPU ABI for package $packageName: ${it.message}")
 }.getOrNull() ?: ""
 
 /**
@@ -413,11 +415,15 @@ fun Context.isAppCanOpened(packageName: String = this.packageName) =
  * @param userId APP 用户 ID - 默认 0
  */
 fun Context.openApp(packageName: String = getPackageName(), userId: Int = 0) = runCatching {
-    ContextClass.method {
+    ContextClass.method { 
         name = "startActivityAsUser"
         param(IntentClass, UserHandleClass)
     }.get(this).call(packageManager.getLaunchIntentForPackage(packageName), UserHandleClass.method { name = "of" }.get().call(userId))
-}.onFailure { toast(msg = "Cannot start \"$packageName\"${if (userId > 0) " for user $userId" else ""}") }
+    YLog.debug("Started app $packageName${if (userId > 0) " for user $userId" else ""}")
+}.onFailure { 
+    YLog.warn("Failed to start app $packageName${if (userId > 0) " for user $userId" else ""}: ${it.message}")
+    toast(msg = "Cannot start \"$packageName\"${if (userId > 0) " for user $userId" else ""}") 
+}
 
 /**
  * 是否有 Root 权限

@@ -78,6 +78,7 @@ object AppErrorsRecordData {
     private fun initializeDataDirectory() {
         runCatching {
             errorsInfoDataFolder.also { if (it.exists().not() || it.isFile) it.apply { delete(); mkdirs() } }
+            YLog.debug("Initialized data directory: $FOLDER_PATH")
         }.onFailure {
             YLog.error("Can't create directory \"$FOLDER_PATH\", there will be problems with the app errors records function", it)
         }
