@@ -30,7 +30,7 @@ import com.highcapable.yukihookapi.hook.factory.configs
 import com.highcapable.yukihookapi.hook.factory.encase
 import com.highcapable.yukihookapi.hook.xposed.proxy.IYukiHookXposedInit
 
-@InjectYukiHookWithXposed(entryClassName = "AppErrorsTracking", isUsingResourcesHook = false)
+@InjectYukiHookWithXposed(entryClassName = "AppErrorsTrackingHook", isUsingResourcesHook = false)
 object HookEntry : IYukiHookXposedInit {
 
     override fun onInit() = configs {
