@@ -596,14 +596,14 @@ object FrameworkHooker : YukiBaseHooker() {
 
     /** 注入崩溃分发逻辑 */
     private fun registerCrashDispatchHooks() {
-        AppErrorsClass.resolve().optional().apply {
+        AppErrorsClass.resolve().optional(silent = true).apply {
             when {
                 Build.VERSION.SDK_INT > Build.VERSION_CODES.R -> {
                     fun hookHandleAppCrashLspb(parameterCount: Int, reasonIndexes: IntArray) {
-                        firstMethodOrNull {
+                        firstMethodOrNull(condition = {
                             name = "handleAppCrashLSPB"
                             this.parameterCount = parameterCount
-                        }?.hook()?.after {
+                        })?.hook()?.after {
                             if (reasonIndexes.any { index -> args(index = index).string() == "user-terminated" }) {
                                 verboseLog { "Ignore user-terminated crash event" }
                                 return@after
@@ -621,10 +621,10 @@ object FrameworkHooker : YukiBaseHooker() {
                     hookHandleAppCrashLspb(parameterCount = 8, reasonIndexes = intArrayOf(1, 2, 3))
                 }
                 else -> {
-                    firstMethodOrNull {
+                    firstMethodOrNull(condition = {
                         name = "handleShowAppErrorUi"
                         parameters(Message::class)
-                    }?.hook()?.after {
+                    })?.hook()?.after {
                         val context = appContext ?: firstFieldOrNull { name = "mContext" }?.of(instance)?.get<Context>() ?: return@after
                         val resultData = args().first().cast<Message>()?.obj
                         val proc = AppErrorDialog_DataClass.resolve().optional().firstFieldOrNull { name = "proc" }?.of(resultData)?.get()
@@ -633,10 +633,10 @@ object FrameworkHooker : YukiBaseHooker() {
                     }
                 }
             }
-            firstMethodOrNull {
+            firstMethodOrNull(condition = {
                 name = "handleAppCrashInActivityController"
                 returnType = Boolean::class
-            }?.hook()?.after {
+            })?.hook()?.after {
                 val context = appContext ?: firstFieldOrNull { name = "mContext" }?.of(instance)?.get<Context>() ?: return@after
                 val proc = args().first().any() ?: return@after YLog.warn("Received but got null ProcessRecord")
                 verboseLog { "Hit hook handleAppCrashInActivityController" }

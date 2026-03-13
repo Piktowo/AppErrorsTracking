@@ -58,7 +58,7 @@ jobs:
           printf '%s' "$SIGNING_KEY_BASE64" | base64 --decode > .secret/universal.p12
       - name: 使用 Gradle 构建
         run: |
-          ./gradlew :module-app:assembleRelease
+          ./gradlew --build-cache --parallel :module-app:assembleRelease
           echo "MODULE_RELEASE_APK_PATH=$(find ${{ env.MODULE_APK_OUTPUT_PATH }}/release -name '*.apk')" >> $GITHUB_ENV
       - name: 发布正式版本
         env:

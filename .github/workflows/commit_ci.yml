@@ -72,19 +72,18 @@ jobs:
           printf '%s' "$SIGNING_KEY_BASE64" | base64 --decode > .secret/universal.p12
       - name: 使用 Gradle 构建
         run: |
-          ./gradlew :module-app:assembleDebug
-          ./gradlew :module-app:assembleRelease
+          ./gradlew --build-cache --parallel :module-app:assembleDebug :module-app:assembleRelease
           echo "MODULE_DEBUG_APK_PATH=$(find ${{ env.MODULE_APK_OUTPUT_PATH }}/debug -name '*.apk')" >> $GITHUB_ENV
           echo "MODULE_RELEASE_APK_PATH=$(find ${{ env.MODULE_APK_OUTPUT_PATH }}/release -name '*.apk')" >> $GITHUB_ENV
       - name: 上传产物 (模块调试版)
         uses: actions/upload-artifact@v4
         with:
-          path: ${{ env.MODULE_DEBUG_APK_PATH }}
+          path: module-app/build/outputs/apk/debug/*.apk
           name: AppErrorsTracking-module-debug-${{ github.sha }}
       - name: 上传产物 (模块正式版)
         uses: actions/upload-artifact@v4
         with:
-          path: ${{ env.MODULE_RELEASE_APK_PATH }}
+          path: module-app/build/outputs/apk/release/*.apk
           name: AppErrorsTracking-module-release-${{ github.sha }}
       - name: 推送产物到 Telegram
         run: |
