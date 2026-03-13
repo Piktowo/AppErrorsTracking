@@ -83,8 +83,8 @@ object GithubReleaseTool {
                 e.printStackTrace()
                 (context as? Activity?)?.runOnUiThread {
                     context.showDialog {
-                        title = locale.networkError
-                        msg = locale.networkErrorTip
+                        title = "网络错误"
+                        msg = "无法连接到 GitHub，请检查网络连接"
                         confirmButton()
                     }
                 }

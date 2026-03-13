@@ -288,7 +288,7 @@ object FrameworkHooker : YukiBaseHooker() {
                 resultData?.let {
                     AppErrorDialog_DataClass.resolve().optional()
                         .firstFieldOrNull { name = "repeating" }
-                        .of(it)?.get<Boolean>() == true
+                        ?.of(it)?.get<Boolean>() == true
                 } ?: false
             }.onFailure {
                 YLog.warn("Failed to get isRepeatingCrash: ${it.message}")
@@ -400,12 +400,12 @@ object FrameworkHooker : YukiBaseHooker() {
                                     else YLog.warn("Fetched installed packages but got empty list")
                                 }
                             }
-                    } ?: arrayListOf()
+                    } ?: arrayListOf<AppInfoBean>()
                 }.onFailure {
                     YLog.error("Failed to push app list data: ${it.message}")
                     it.printStackTrace()
-                    arrayListOf()
-                }.getOrElse { arrayListOf() }
+                    arrayListOf<AppInfoBean>()
+                }.getOrElse { arrayListOf<AppInfoBean>() }
             }
         }
     }

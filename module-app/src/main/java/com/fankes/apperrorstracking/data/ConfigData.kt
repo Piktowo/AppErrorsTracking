@@ -126,14 +126,14 @@ object ConfigData {
     internal fun getInt(data: PrefsData<Int>): Int {
         if (instance == null) {
             YLog.warn("ConfigData is not initialized, returning default value")
-            return data.defaultValue
+            return 0
         }
         return when (instance) {
             is Context -> (instance as Context).prefs().get(data)
             is PackageParam -> (instance as PackageParam).prefs.get(data)
             else -> {
                 YLog.warn("Unknown type for get prefs data, returning default value")
-                data.defaultValue
+                0
             }
         }
     }
@@ -163,14 +163,14 @@ object ConfigData {
     internal fun getBoolean(data: PrefsData<Boolean>): Boolean {
         if (instance == null) {
             YLog.warn("ConfigData is not initialized, returning default value")
-            return data.defaultValue
+            return false
         }
         return when (instance) {
             is Context -> (instance as Context).prefs().get(data)
             is PackageParam -> (instance as PackageParam).prefs.get(data)
             else -> {
                 YLog.warn("Unknown type for get prefs data, returning default value")
-                data.defaultValue
+                false
             }
         }
     }
