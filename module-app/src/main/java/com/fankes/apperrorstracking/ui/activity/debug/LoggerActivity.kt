@@ -29,6 +29,7 @@ import android.view.ContextMenu
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
 import com.fankes.apperrorstracking.R
 import com.fankes.apperrorstracking.const.PackageName
@@ -52,12 +53,6 @@ import java.util.Date
 
 class LoggerActivity : BaseActivity<ActivityLoggerBinding>() {
 
-    companion object {
-
-        /** 请求保存文件回调标识 */
-        private const val WRITE_REQUEST_CODE = 0
-    }
-
     /** 回调适配器改变 */
     private var onChanged: (() -> Unit)? = null
 
@@ -66,6 +61,16 @@ class LoggerActivity : BaseActivity<ActivityLoggerBinding>() {
 
     /** 全部的调试日志数据 */
     private val listData = mutableListOf<YLogData>()
+
+    /** 保存文件的 ActivityResultLauncher */
+    private val saveFileLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        if (it.resultCode == Activity.RESULT_OK) runCatching {
+            it.data?.data?.let {uri ->
+                contentResolver?.openOutputStream(uri)?.apply { write(YLog.contents(listData).toByteArray()) }?.close()
+                toast(locale.exportAllLogsSuccess)
+            } ?: toast(locale.exportAllLogsFail)
+        }.onFailure { toast(locale.exportAllLogsFail) }
+    }
 
     override fun onCreate() {
         binding.titleBackIcon.setOnClickListener { finish() }
@@ -90,12 +95,12 @@ class LoggerActivity : BaseActivity<ActivityLoggerBinding>() {
         }
         binding.exportAllIcon.setOnClickListener {
             runCatching {
-                startActivityForResult(Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                saveFileLauncher.launch(Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
                     addCategory(Intent.CATEGORY_OPENABLE)
                     addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     type = "text/plain"
                     putExtra(Intent.EXTRA_TITLE, "app_errors_tracking_${System.currentTimeMillis().toUtcTime()}.log")
-                }, WRITE_REQUEST_CODE)
+                })
             }.onFailure { toast(msg = "Start Android SAF failed") }
         }
         /** 设置列表元素和 Adapter */
@@ -173,16 +178,6 @@ class LoggerActivity : BaseActivity<ActivityLoggerBinding>() {
                     copyToClipboard(listData[it.position].let { e -> e.toString() + (e.throwable?.toStackTrace()?.let { t -> "\n$t" } ?: "") })
             }
         return super.onContextItemSelected(item)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == WRITE_REQUEST_CODE && resultCode == Activity.RESULT_OK) runCatching {
-            data?.data?.let {
-                contentResolver?.openOutputStream(it)?.apply { write(YLog.contents(listData).toByteArray()) }?.close()
-                toast(locale.exportAllLogsSuccess)
-            } ?: toast(locale.exportAllLogsFail)
-        }.onFailure { toast(locale.exportAllLogsFail) }
     }
 
     override fun onResume() {

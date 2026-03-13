@@ -600,7 +600,7 @@ object FrameworkHooker : YukiBaseHooker() {
             when {
                 Build.VERSION.SDK_INT > Build.VERSION_CODES.R -> {
                     fun hookHandleAppCrashLspb(parameterCount: Int, reasonIndexes: IntArray) {
-                        firstMethodOrNull {
+                        firstMethodOrNull(silent = true) {
                             name = "handleAppCrashLSPB"
                             this.parameterCount = parameterCount
                         }?.hook()?.after {
@@ -621,7 +621,7 @@ object FrameworkHooker : YukiBaseHooker() {
                     hookHandleAppCrashLspb(parameterCount = 8, reasonIndexes = intArrayOf(1, 2, 3))
                 }
                 else -> {
-                    firstMethodOrNull {
+                    firstMethodOrNull(silent = true) {
                         name = "handleShowAppErrorUi"
                         parameters(Message::class)
                     }?.hook()?.after {
@@ -633,7 +633,7 @@ object FrameworkHooker : YukiBaseHooker() {
                     }
                 }
             }
-            firstMethodOrNull {
+            firstMethodOrNull(silent = true) {
                 name = "handleAppCrashInActivityController"
                 returnType = Boolean::class
             }?.hook()?.after {
