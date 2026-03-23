@@ -26,6 +26,7 @@ import android.content.Context
 import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
 import android.icu.util.TimeZone
+import android.os.Looper
 import com.fankes.apperrorstracking.locale.locale
 import com.fankes.apperrorstracking.utils.factory.openBrowser
 import com.fankes.apperrorstracking.utils.factory.showDialog
@@ -81,7 +82,7 @@ object GithubReleaseTool {
         ).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 e.printStackTrace()
-                (context as? Activity?)?.runOnUiThread {
+                context.runOnUiThreadIfActivity {
                     context.showDialog {
                         title = "网络错误"
                         msg = "无法连接到 GitHub，请检查网络连接"
@@ -104,7 +105,7 @@ object GithubReleaseTool {
                             confirmButton(locale.updateNow) { context.openBrowser(htmlUrl) }
                             cancelButton()
                         }
-                        if (name != version) (context as? Activity?)?.runOnUiThread {
+                        if (name != version) context.runOnUiThreadIfActivity {
                             showUpdate()
                             result(name) { showUpdate() }
                         }
@@ -118,6 +119,11 @@ object GithubReleaseTool {
      * 格式化时间为本地时区
      * @return [String] 本地时区时间
      */
+    private fun Context.runOnUiThreadIfActivity(action: () -> Unit) {
+        val activity = this as? Activity ?: return
+        if (Looper.myLooper() == Looper.getMainLooper()) action() else activity.runOnUiThread(action)
+    }
+
     private fun String.localTime() = replace("T", " ").replace("Z", "").let {
         runCatching {
             val local = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.ROOT).apply { timeZone = Calendar.getInstance().timeZone }

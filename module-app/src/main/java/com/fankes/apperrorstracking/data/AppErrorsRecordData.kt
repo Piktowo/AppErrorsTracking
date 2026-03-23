@@ -45,6 +45,7 @@ object AppErrorsRecordData {
 
     /** 异常记录数据文件目录路径 */
     private const val FOLDER_PATH = "/data/misc/app_errors_records/"
+    private const val LEGACY_MIGRATION_MARKER_FILE = ".legacy_migrated"
 
     /** 当前实例 */
     private var context: Context? = null
@@ -54,6 +55,7 @@ object AppErrorsRecordData {
      * @return [File]
      */
     private val errorsInfoDataFolder by lazy { File(FOLDER_PATH) }
+    private val legacyMigrationMarkerFile by lazy { File(errorsInfoDataFolder, LEGACY_MIGRATION_MARKER_FILE) }
 
     /**
      * 获取当前全部异常记录数据文件
@@ -84,26 +86,34 @@ object AppErrorsRecordData {
         }
     }
 
+    private fun markLegacyMigrationChecked() {
+        runCatching { legacyMigrationMarkerFile.writeText("done") }
+    }
+
     /**
      * 获取旧版异常记录数据并自动转换到新版
      * @return [CopyOnWriteArrayList]<[AppErrorsInfoBean]> or null
      */
-    private fun copyOldDataFromResolverString() = context?.let {
+    private fun copyOldDataFromResolverString() = context?.let { context ->
+        if (legacyMigrationMarkerFile.exists()) return null
         val keyName = "app_errors_data"
         runCatching {
-            Settings.Secure.getString(it.contentResolver, keyName)
-                ?.toEntityOrNull<CopyOnWriteArrayList<AppErrorsInfoBean>>()
+            val raw = Settings.Secure.getString(context.contentResolver, keyName)
+            if (raw.isNullOrBlank()) {
+                markLegacyMigrationChecked()
+                return@runCatching null
+            }
+            raw.toEntityOrNull<CopyOnWriteArrayList<AppErrorsInfoBean>>()
                 ?.onEach { e ->
-                    e.cpuAbi = it.appCpuAbiOf(e.packageName)
-                    e.versionName = it.appVersionNameOf(e.packageName).ifBlank { "unknown" }
-                    e.versionCode = it.appVersionCodeOf(e.packageName)
+                    e.cpuAbi = context.appCpuAbiOf(e.packageName)
+                    e.versionName = context.appVersionNameOf(e.packageName).ifBlank { "unknown" }
+                    e.versionCode = context.appVersionCodeOf(e.packageName)
                     e.toJsonOrNull()?.also { json -> File(errorsInfoDataFolder.absolutePath, e.jsonFileName).writeText(json) }
                 }.let { result ->
-                if (result != null) {
-                    Settings.Secure.putString(it.contentResolver, keyName, "")
+                    if (result != null) Settings.Secure.putString(context.contentResolver, keyName, "")
+                    markLegacyMigrationChecked()
                     result
-                } else null
-            }
+                }
         }.getOrNull()
     }
 

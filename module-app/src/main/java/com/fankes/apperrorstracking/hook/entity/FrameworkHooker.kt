@@ -63,6 +63,8 @@ import com.highcapable.kavaref.KavaRef.Companion.resolve
 import com.highcapable.kavaref.extension.VariousClass
 import com.highcapable.yukihookapi.hook.entity.YukiBaseHooker
 import com.highcapable.yukihookapi.hook.log.YLog
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicLong
 
 object FrameworkHooker : YukiBaseHooker() {
 
@@ -94,7 +96,12 @@ object FrameworkHooker : YukiBaseHooker() {
     private var mutedErrorsIfRestartApps = mutableSetOf<String>()
 
     /** 最近弹窗去重缓存 (避免多路径 Hook 触发重复弹窗) */
-    private val recentUiEvents = LinkedHashMap<String, Long>()
+    private val recentUiEvents = ConcurrentHashMap<String, Long>()
+    private val recentUiEventsLastCleanup = AtomicLong(0L)
+
+    private const val RECENT_UI_EVENT_TTL_MS = 2500L
+    private const val RECENT_UI_EVENT_MAX_SIZE = 100
+    private const val RECENT_UI_EVENT_CLEANUP_INTERVAL_MS = 2000L
 
     /** 通知小图标缓存，避免每次崩溃都重新 Bitmap 转换 */
     private var cachedNotifyIcon: IconCompat? = null
@@ -113,14 +120,24 @@ object FrameworkHooker : YukiBaseHooker() {
      * @param token 事件标识
      * @return [Boolean]
      */
-    private fun shouldDispatchUiEvent(token: String): Boolean = synchronized(recentUiEvents) {
+    private fun shouldDispatchUiEvent(token: String): Boolean {
         val now = SystemClock.elapsedRealtime()
-        recentUiEvents.entries.removeAll { now - it.value > 2500L }
-        if (recentUiEvents.size > 100) recentUiEvents.clear()
-        if (recentUiEvents.containsKey(token)) false else {
-            recentUiEvents[token] = now
-            true
+        val lastTime = recentUiEvents[token]
+        if (lastTime != null && now - lastTime <= RECENT_UI_EVENT_TTL_MS) return false
+        recentUiEvents[token] = now
+
+        val lastCleanup = recentUiEventsLastCleanup.get()
+        if (now - lastCleanup >= RECENT_UI_EVENT_CLEANUP_INTERVAL_MS &&
+            recentUiEventsLastCleanup.compareAndSet(lastCleanup, now)
+        ) {
+            val iterator = recentUiEvents.entries.iterator()
+            while (iterator.hasNext()) {
+                val entry = iterator.next()
+                if (now - entry.value > RECENT_UI_EVENT_TTL_MS) iterator.remove()
+            }
+            if (recentUiEvents.size > RECENT_UI_EVENT_MAX_SIZE) recentUiEvents.clear()
         }
+        return true
     }
 
     /** 仅在开启调试开关时打印分发日志 */

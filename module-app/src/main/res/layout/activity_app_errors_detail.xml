@@ -99,18 +99,18 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
+                android:layout_marginBottom="12dp"
                 android:orientation="vertical">
 
                 <LinearLayout
                     android:id="@+id/app_info_item"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:background="@drawable/bg_permotion_ripple"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:background="@drawable/bg_surface_card_ripple"
                     android:gravity="center|start"
-                    android:padding="10dp">
+                    android:padding="12dp">
 
                     <androidx.cardview.widget.CardView
                         android:layout_width="45dp"
@@ -248,25 +248,23 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginRight="10dp"
-                    android:background="@drawable/bg_permotion_round"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginRight="12dp"
+                    android:background="@drawable/bg_surface_card"
                     android:gravity="center|start"
                     android:orientation="vertical"
-                    android:padding="15dp">
+                    android:padding="14dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        android:gravity="center|start|top"
-                        android:orientation="horizontal">
+                        android:layout_marginBottom="8dp"
+                        android:orientation="vertical">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginEnd="10dp"
                             android:ellipsize="end"
                             android:singleLine="true"
                             android:text="@string/error_info"
@@ -276,23 +274,23 @@
 
                         <TextView
                             android:id="@+id/error_info_text"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:lineSpacingExtra="5dp"
+                            android:layout_marginTop="6dp"
+                            android:lineSpacingExtra="4dp"
                             android:textColor="@color/colorTextGray"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
+                            android:textSize="13sp" />
                     </LinearLayout>
 
                     <TextView
                         android:id="@+id/error_summary_text"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        android:alpha="0.8"
-                        android:lineSpacingExtra="5dp"
+                        android:layout_marginBottom="12dp"
+                        android:alpha="0.85"
+                        android:lineSpacingExtra="4dp"
                         android:textColor="@color/colorTextDark"
-                        android:textSize="11.5sp" />
+                        android:textSize="12sp" />
 
                     <LinearLayout
                         android:id="@+id/jvm_error_panel"
@@ -320,15 +318,15 @@
                                 android:textSize="12sp"
                                 android:textStyle="bold" />
 
-                            <TextView
-                                android:id="@+id/error_type_text"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:ellipsize="end"
-                                android:singleLine="true"
-                                android:textColor="#FFEF5350"
-                                android:textSize="12sp"
-                                android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/error_type_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:singleLine="true"
+                            android:textColor="#D32F2F"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
                         </LinearLayout>
 
                         <LinearLayout
@@ -349,15 +347,14 @@
                                 android:textSize="12sp"
                                 android:textStyle="bold" />
 
-                            <TextView
-                                android:id="@+id/error_file_name_text"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:ellipsize="end"
-                                android:singleLine="true"
-                                android:textColor="@color/colorTextGray"
-                                android:textSize="12sp"
-                                android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/error_file_name_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:singleLine="true"
+                            android:textColor="@color/colorTextGray"
+                            android:textSize="12sp" />
                         </LinearLayout>
 
                         <LinearLayout
@@ -378,15 +375,14 @@
                                 android:textSize="12sp"
                                 android:textStyle="bold" />
 
-                            <TextView
-                                android:id="@+id/error_throw_class_text"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:ellipsize="end"
-                                android:singleLine="true"
-                                android:textColor="@color/colorTextGray"
-                                android:textSize="12sp"
-                                android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/error_throw_class_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:singleLine="true"
+                            android:textColor="@color/colorTextGray"
+                            android:textSize="12sp" />
                         </LinearLayout>
 
                         <LinearLayout
@@ -407,15 +403,14 @@
                                 android:textSize="12sp"
                                 android:textStyle="bold" />
 
-                            <TextView
-                                android:id="@+id/error_throw_method_text"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:ellipsize="end"
-                                android:singleLine="true"
-                                android:textColor="@color/colorTextGray"
-                                android:textSize="12sp"
-                                android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/error_throw_method_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:singleLine="true"
+                            android:textColor="@color/colorTextGray"
+                            android:textSize="12sp" />
                         </LinearLayout>
 
                         <LinearLayout
@@ -435,15 +430,14 @@
                                 android:textSize="12sp"
                                 android:textStyle="bold" />
 
-                            <TextView
-                                android:id="@+id/error_line_number_text"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:ellipsize="end"
-                                android:singleLine="true"
-                                android:textColor="@color/colorTextGray"
-                                android:textSize="12sp"
-                                android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/error_line_number_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:singleLine="true"
+                            android:textColor="@color/colorTextGray"
+                            android:textSize="12sp" />
                         </LinearLayout>
                     </LinearLayout>
 
@@ -471,8 +465,7 @@
                             android:ellipsize="end"
                             android:singleLine="true"
                             android:textColor="@color/colorTextGray"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
+                            android:textSize="12sp" />
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
@@ -481,15 +474,15 @@
                 android:id="@+id/stack_trace_toggle_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_marginBottom="10dp"
-                android:background="@drawable/bg_button_round"
+                android:layout_marginLeft="12dp"
+                android:layout_marginRight="12dp"
+                android:layout_marginBottom="12dp"
+                android:background="@drawable/bg_surface_button"
                 android:gravity="center"
-                android:padding="10dp"
+                android:padding="12dp"
                 android:text="@string/hide_stack_trace"
                 android:textColor="@color/colorTextGray"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 android:textStyle="bold" />
 
             <LinearLayout
@@ -503,30 +496,30 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom|end"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:layout_marginBottom="10dp"
-                    android:background="@drawable/bg_permotion_round"
-                    android:paddingLeft="15dp"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:layout_marginBottom="12dp"
+                    android:background="@drawable/bg_surface_card"
+                    android:paddingLeft="14dp"
                     android:paddingTop="10dp"
-                    android:paddingRight="15dp"
+                    android:paddingRight="14dp"
                     android:paddingBottom="10dp"
                     android:text="@string/disable_auto_wrap_error_stack_trace_content"
                     android:textAllCaps="false"
                     android:textColor="@color/colorTextGray"
-                    android:textSize="15sp" />
+                    android:textSize="14sp" />
 
                 <HorizontalScrollView
                     android:id="@+id/error_stack_trace_scroll_view"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
                     android:background="@drawable/bg_stack_round"
                     android:fadingEdgeLength="10dp"
                     android:fillViewport="true"
                     android:overScrollMode="never"
-                    android:padding="15dp"
+                    android:padding="12dp"
                     android:requiresFadingEdge="horizontal"
                     android:scrollbars="none"
                     android:visibility="gone">
@@ -535,8 +528,8 @@
                         android:id="@+id/error_stack_trace_movable_text"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:lineSpacingExtra="5dp"
-                        android:textColor="#B65B57"
+                        android:lineSpacingExtra="4dp"
+                        android:textColor="@color/colorTextGray"
                         android:textIsSelectable="true"
                         android:textSize="12sp"
                         android:typeface="monospace" />
@@ -546,12 +539,12 @@
                     android:id="@+id/error_stack_trace_fixed_text"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
                     android:background="@drawable/bg_stack_round"
-                    android:lineSpacingExtra="5dp"
-                    android:padding="15dp"
-                    android:textColor="#B65B57"
+                    android:lineSpacingExtra="4dp"
+                    android:padding="12dp"
+                    android:textColor="@color/colorTextGray"
                     android:textIsSelectable="true"
                     android:textSize="12sp"
                     android:typeface="monospace" />
