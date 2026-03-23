@@ -45,7 +45,7 @@ jobs:
           CI_COMMIT_ID=${GITHUB_SHA:0:7}
           echo "CI_COMMIT_ID=$CI_COMMIT_ID" >> $GITHUB_ENV
       - name: 配置 CMake
-        uses: jwlawson/actions-setup-cmake@v1
+        uses: jwlawson/actions-setup-cmake@v2
         with:
           cmake-version: '3.22.1'
       - name: 配置 Java 21
@@ -56,7 +56,7 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
       - name: 缓存 Gradle 依赖
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.gradle/caches
@@ -66,7 +66,7 @@ jobs:
           restore-keys: |
             gradle-deps
       - name: 缓存 Gradle 构建
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.gradle/caches/build-cache-*

@@ -45,8 +45,10 @@ import com.fankes.apperrorstracking.utils.factory.feedback
 import com.fankes.apperrorstracking.utils.factory.getSerializableExtraCompat
 import com.fankes.apperrorstracking.utils.factory.navigate
 import com.fankes.apperrorstracking.utils.factory.openSelfSetting
+import com.fankes.apperrorstracking.utils.factory.openBrowser
 import com.fankes.apperrorstracking.utils.factory.showDialog
 import com.fankes.apperrorstracking.utils.factory.toast
+import com.fankes.apperrorstracking.utils.factory.toJson
 import com.fankes.apperrorstracking.utils.tool.StackTraceShareHelper
 import com.highcapable.yukihookapi.hook.log.loggerE
 import java.io.File
@@ -137,17 +139,16 @@ class AppErrorsDetailActivity : BaseActivity<ActivityAppErrorsDetailBinding>() {
             }
         }
         binding.exportIcon.setOnClickListener {
-            StackTraceShareHelper.showChoose(context = this, locale.exportToFile) { sDeviceBrand, sDeviceModel, sDisplay, sPackageName ->
-                stackTrace = appErrorsInfo.stackOutputFileContent(sDeviceBrand, sDeviceModel, sDisplay, sPackageName)
-                runCatching {
-                    startActivityForResult(Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-                        addCategory(Intent.CATEGORY_OPENABLE)
-                        addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                        type = "text/plain"
-                        val packageName = if (sPackageName) appErrorsInfo.packageName else "anonymous"
-                        putExtra(Intent.EXTRA_TITLE, "${packageName}_${appErrorsInfo.utcTime}.log")
-                    }, WRITE_REQUEST_CODE)
-                }.onFailure { toast(msg = "Start Android SAF failed") }
+            showDialog {
+                title = "Export Format"
+                confirmButton("Log file") {
+                    StackTraceShareHelper.showChoose(context = this@AppErrorsDetailActivity, locale.exportToFile) {
+                            sDeviceBrand, sDeviceModel, sDisplay, sPackageName ->
+                        exportAsLog(appErrorsInfo, sDeviceBrand, sDeviceModel, sDisplay, sPackageName)
+                    }
+                }
+                neutralButton("JSON") { exportAsJson(appErrorsInfo) }
+                cancelButton()
             }
         }
         binding.shareIcon.setOnClickListener {
@@ -170,6 +171,12 @@ class AppErrorsDetailActivity : BaseActivity<ActivityAppErrorsDetailBinding>() {
                     }
                 }, locale.shareErrorStack))
             }
+        }
+        binding.searchIcon.setOnClickListener {
+            val query = "${appErrorsInfo.exceptionClassName} ${appErrorsInfo.exceptionMessage}"
+                .take(200)
+                .let { java.net.URLEncoder.encode(it, "UTF-8") }
+            openBrowser(url = "https://stackoverflow.com/search?q=${query}")
         }
         binding.appIcon.setImageDrawable(appIconOf(appErrorsInfo.packageName))
         binding.appNameText.text = appNameOf(appErrorsInfo.packageName).ifBlank { appErrorsInfo.packageName }
@@ -201,6 +208,38 @@ class AppErrorsDetailActivity : BaseActivity<ActivityAppErrorsDetailBinding>() {
     }
 
     /** 修复在一些小屏设备上设置了 [TextView.setTextIsSelectable] 后布局自动上滑问题 */
+    private fun exportAsLog(
+        appErrorsInfo: AppErrorsInfoBean,
+        sDeviceBrand: Boolean,
+        sDeviceModel: Boolean,
+        sDisplay: Boolean,
+        sPackageName: Boolean
+    ) {
+        stackTrace = appErrorsInfo.stackOutputFileContent(sDeviceBrand, sDeviceModel, sDisplay, sPackageName)
+        runCatching {
+            startActivityForResult(Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                type = "text/plain"
+                val packageName = if (sPackageName) appErrorsInfo.packageName else "anonymous"
+                putExtra(Intent.EXTRA_TITLE, "${packageName}_${appErrorsInfo.utcTime}.log")
+            }, WRITE_REQUEST_CODE)
+        }.onFailure { toast(msg = "Start Android SAF failed") }
+    }
+
+    private fun exportAsJson(appErrorsInfo: AppErrorsInfoBean) {
+        stackTrace = appErrorsInfo.toJson()
+        runCatching {
+            startActivityForResult(Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                type = "application/json"
+                putExtra(Intent.EXTRA_TITLE, "${appErrorsInfo.packageName}_${appErrorsInfo.utcTime}.json")
+            }, WRITE_REQUEST_CODE)
+        }.onFailure { toast(msg = "Start Android SAF failed") }
+    }
+
+    /** 淇鍦ㄤ竴浜涘皬灞忚澶囦笂璁剧疆浜?[TextView.setTextIsSelectable] 鍚庡竷灞€鑷姩涓婃粦闂 */
     private fun resetScrollView() {
         binding.rootView.post {
             binding.appPanelScrollView.scrollTo(0, 0)

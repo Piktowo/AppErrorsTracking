@@ -27,9 +27,12 @@ import android.app.Activity
 import android.content.ComponentName
 import android.content.Intent
 import android.view.ContextMenu
+import android.view.Gravity
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView.AdapterContextMenuInfo
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.core.view.isVisible
 import com.fankes.apperrorstracking.R
 import com.fankes.apperrorstracking.bean.AppErrorsInfoBean
@@ -44,6 +47,7 @@ import com.fankes.apperrorstracking.utils.factory.appIconOf
 import com.fankes.apperrorstracking.utils.factory.appNameOf
 import com.fankes.apperrorstracking.utils.factory.bindAdapter
 import com.fankes.apperrorstracking.utils.factory.decimal
+import com.fankes.apperrorstracking.utils.factory.dp
 import com.fankes.apperrorstracking.utils.factory.newThread
 import com.fankes.apperrorstracking.utils.factory.openSelfSetting
 import com.fankes.apperrorstracking.utils.factory.showDialog
@@ -107,6 +111,52 @@ class AppErrorsRecordActivity : BaseActivity<ActivityAppErrorsRecordBinding>() {
                                 binding.mostErrorsAppText.text = appNameOf(mostAppPackageName).ifBlank { mostAppPackageName }
                                 binding.mostErrorsTypeText.text = mostErrorsType
                                 binding.totalPptOfErrorsText.text = "$pptCount%"
+                                // Timeline statistics
+                                val now = System.currentTimeMillis()
+                                val oneDayMs = 86400_000L
+                                val timeGroups = linkedMapOf(
+                                    "Today" to 0,
+                                    "Yesterday" to 0,
+                                    "This week" to 0,
+                                    "Earlier" to 0
+                                )
+                                listData.forEach { bean ->
+                                    val diff = now - bean.timestamp
+                                    when {
+                                        diff < oneDayMs -> timeGroups["Today"] = timeGroups["Today"]!! + 1
+                                        diff < oneDayMs * 2 -> timeGroups["Yesterday"] = timeGroups["Yesterday"]!! + 1
+                                        diff < oneDayMs * 7 -> timeGroups["This week"] = timeGroups["This week"]!! + 1
+                                        else -> timeGroups["Earlier"] = timeGroups["Earlier"]!! + 1
+                                    }
+                                }
+                                val maxCount = timeGroups.values.maxOrNull()?.takeIf { it > 0 } ?: 1
+
+                                timeGroups.forEach { (label, count) ->
+                                    val row = LinearLayout(context).apply {
+                                        orientation = LinearLayout.HORIZONTAL
+                                        gravity = Gravity.CENTER_VERTICAL
+                                        setPadding(0, 4.dp(context), 0, 4.dp(context))
+                                    }
+                                    val labelView = TextView(context).apply {
+                                        text = label
+                                        textSize = 12f
+                                        layoutParams = LinearLayout.LayoutParams(80.dp(context), LinearLayout.LayoutParams.WRAP_CONTENT)
+                                    }
+                                    val barView = android.view.View(context).apply {
+                                        val barWidth = ((count.toFloat() / maxCount) * 160.dp(context)).toInt()
+                                        layoutParams =
+                                            LinearLayout.LayoutParams(barWidth.coerceAtLeast(4.dp(context)), 16.dp(context))
+                                        setBackgroundColor(0xFF656565.toInt())
+                                    }
+                                    val countView = TextView(context).apply {
+                                        text = "  $count"
+                                        textSize = 12f
+                                    }
+                                    row.addView(labelView)
+                                    row.addView(barView)
+                                    row.addView(countView)
+                                    binding.timelineContainer.addView(row)
+                                }
                                 confirmButton(locale.gotIt)
                             }
                         }
@@ -142,7 +192,10 @@ class AppErrorsRecordActivity : BaseActivity<ActivityAppErrorsRecordBinding>() {
                 onBindViews<AdapterAppErrorsRecordBinding> { binding, position ->
                     listData[position].also { bean ->
                         binding.appIcon.setImageDrawable(appIconOf(bean.packageName))
-                        binding.appNameText.text = appNameOf(bean.packageName).ifBlank { bean.packageName }
+                        binding.appNameText.text = buildString {
+                            append(appNameOf(bean.packageName).ifBlank { bean.packageName })
+                            if (bean.crashCount > 1) append(" ×${bean.crashCount}")
+                        }
                         binding.appUserIdText.isVisible = bean.userId > 0
                         binding.appUserIdText.text = locale.userId(bean.userId)
                         binding.errorsTimeText.text = bean.crossTime

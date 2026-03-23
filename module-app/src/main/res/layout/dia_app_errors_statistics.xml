@@ -166,4 +166,23 @@
             android:textSize="14sp"
             android:textStyle="bold" />
     </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8.5dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginRight="8.5dp"
+        android:layout_marginBottom="5dp"
+        android:text="Crash Timeline"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:id="@+id/timeline_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8.5dp"
+        android:layout_marginRight="8.5dp"
+        android:orientation="vertical" />
 </LinearLayout>

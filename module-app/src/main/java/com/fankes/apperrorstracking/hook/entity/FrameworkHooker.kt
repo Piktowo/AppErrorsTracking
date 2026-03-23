@@ -463,7 +463,8 @@ object FrameworkHooker : YukiBaseHooker() {
                     cachedNotifyIcon = it
                 },
                 color = 0xFFFF6200.toInt(),
-                intent = AppErrorsRecordActivity.intent()
+                intent = AppErrorsRecordActivity.intent(),
+                packageName = packageName
             )
         }
 

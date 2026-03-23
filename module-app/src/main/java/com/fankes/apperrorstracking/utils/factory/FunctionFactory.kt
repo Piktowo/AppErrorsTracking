@@ -327,11 +327,27 @@ fun Context.snake(msg: String, actionText: String = "", callback: () -> Unit = {
  * @param color 颜色
  * @param intent [Intent]
  */
-fun Context.pushNotify(channelId: String, channelName: String, title: String, content: String, icon: IconCompat, color: Int, intent: Intent) {
+fun Context.pushNotify(
+    channelId: String,
+    channelName: String,
+    title: String,
+    content: String,
+    icon: IconCompat,
+    color: Int,
+    intent: Intent,
+    packageName: String = ""
+) {
+    val actualChannelId = if (packageName.isNotBlank()) "APPS_ERRORS_$packageName" else channelId
+    val actualChannelName = if (packageName.isNotBlank())
+        "${appNameOf(packageName).ifBlank { packageName }} errors"
+    else channelName
+
     getSystemService<NotificationManager>()?.apply {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-            createNotificationChannel(NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH))
-        notify((0..999).random(), NotificationCompat.Builder(this@pushNotify, channelId).apply {
+            createNotificationChannel(
+                NotificationChannel(actualChannelId, actualChannelName, NotificationManager.IMPORTANCE_HIGH)
+            )
+        notify((0..999).random(), NotificationCompat.Builder(this@pushNotify, actualChannelId).apply {
             this.color = color
             setAutoCancel(true)
             setContentTitle(title)

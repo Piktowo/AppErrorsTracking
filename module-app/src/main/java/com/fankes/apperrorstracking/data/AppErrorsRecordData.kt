@@ -66,6 +66,9 @@ object AppErrorsRecordData {
     /** 已记录的全部 APP 异常信息数组 */
     var allData = CopyOnWriteArrayList<AppErrorsInfoBean>()
 
+    /** Crash count map, key = deduplicationKey */
+    val crashCountMap = mutableMapOf<String, Int>()
+
     /**
      * 初始化存储控制类
      * @param context 实例
@@ -122,7 +125,15 @@ object AppErrorsRecordData {
      * @return [CopyOnWriteArrayList]<[AppErrorsInfoBean]>
      */
     private fun readAllDataFromFiles() = copyOldDataFromResolverString() ?: CopyOnWriteArrayList<AppErrorsInfoBean>().apply {
-        errorsInfoDataFiles.takeIf { it.isNotEmpty() }?.forEach { it.readText().toEntityOrNull<AppErrorsInfoBean>()?.let { e -> add(e) } }
+        errorsInfoDataFiles.takeIf { it.isNotEmpty() }?.forEach {
+            it.readText().toEntityOrNull<AppErrorsInfoBean>()?.let { e -> add(e) }
+        }
+    }.also { list ->
+        // Dedup count statistics
+        list.groupBy { it.deduplicationKey }.forEach { (key, group) ->
+            crashCountMap[key] = group.size
+            group.first().crashCount = group.size
+        }
     }
 
     /**
@@ -130,10 +141,26 @@ object AppErrorsRecordData {
      * @param bean [AppErrorsInfoBean] 实例
      */
     fun add(bean: AppErrorsInfoBean) {
-        allData.add(0, bean)
-        bean.toJsonOrNull()?.runCatching { File(errorsInfoDataFolder.absolutePath, bean.jsonFileName).writeText(this) }
+        val key = bean.deduplicationKey
+        val existingIndex = allData.indexOfFirst { it.deduplicationKey == key }
+        if (existingIndex != -1) {
+            // Existing crash, update count and timestamp.
+            val newCount = (crashCountMap[key] ?: 1) + 1
+            crashCountMap[key] = newCount
+            val existing = allData.removeAt(existingIndex)
+            val updated = existing.copy(timestamp = bean.timestamp).also { it.crashCount = newCount }
+            allData.add(0, updated)
+        } else {
+            crashCountMap[key] = 1
+            bean.crashCount = 1
+            allData.add(0, bean)
+            bean.toJsonOrNull()?.runCatching {
+                File(errorsInfoDataFolder.absolutePath, bean.jsonFileName).writeText(this)
+            }
+        }
         if (allData.size > MAX_RECORDS) {
             val oldest = allData.removeAt(allData.size - 1)
+            crashCountMap.remove(oldest.deduplicationKey)
             runCatching { File(errorsInfoDataFolder.absolutePath, oldest.jsonFileName).delete() }
             YLog.debug("Max records ($MAX_RECORDS) reached, removed oldest record for \"${oldest.packageName}\"")
         }

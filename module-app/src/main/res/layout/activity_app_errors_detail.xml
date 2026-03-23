@@ -78,6 +78,15 @@
             android:src="@drawable/ic_share"
             android:tint="@color/colorTextGray"
             android:tooltipText="@string/share_error_stack" />
+
+        <androidx.constraintlayout.utils.widget.ImageFilterView
+            android:id="@+id/search_icon"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/ic_baseline_search"
+            android:tint="@color/colorTextGray"
+            android:tooltipText="Search on StackOverflow" />
     </LinearLayout>
 
     <androidx.core.widget.NestedScrollView

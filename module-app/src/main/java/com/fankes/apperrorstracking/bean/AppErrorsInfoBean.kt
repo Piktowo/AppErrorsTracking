@@ -143,6 +143,17 @@ data class AppErrorsInfoBean(
     val isEmpty get() = pid == -1 && userId == -1 && timestamp == -1L
 
     /**
+     * Deduplication key for grouping crashes.
+     */
+    val deduplicationKey get() = "$exceptionClassName|$throwClassName|$throwMethodName|$throwLineNumber"
+
+    /**
+     * Crash count (non-persistent, in-memory only).
+     */
+    @Transient
+    var crashCount: Int = 1
+
+    /**
      * 获取生成的 Json 文件名
      * @return [String]
      */
