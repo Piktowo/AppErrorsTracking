@@ -140,14 +140,14 @@ class AppErrorsDetailActivity : BaseActivity<ActivityAppErrorsDetailBinding>() {
         }
         binding.exportIcon.setOnClickListener {
             showDialog {
-                title = "Export Format"
-                confirmButton("Log file") {
+                title = getString(R.string.export_format)
+                confirmButton(getString(R.string.export_format_log)) {
                     StackTraceShareHelper.showChoose(context = this@AppErrorsDetailActivity, locale.exportToFile) {
                             sDeviceBrand, sDeviceModel, sDisplay, sPackageName ->
                         exportAsLog(appErrorsInfo, sDeviceBrand, sDeviceModel, sDisplay, sPackageName)
                     }
                 }
-                neutralButton("JSON") { exportAsJson(appErrorsInfo) }
+                neutralButton(getString(R.string.export_format_json)) { exportAsJson(appErrorsInfo) }
                 cancelButton()
             }
         }

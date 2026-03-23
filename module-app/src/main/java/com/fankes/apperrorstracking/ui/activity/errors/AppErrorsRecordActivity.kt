@@ -101,6 +101,25 @@ class AppErrorsRecordActivity : BaseActivity<ActivityAppErrorsRecordBinding>() {
                             .sortedByDescending { it.second }
                             .takeIf { it.isNotEmpty() }?.get(0)?.first?.simpleThwName() ?: ""
                         val pptCount = (((errorsApps?.size?.toFloat() ?: 0f) * 100f) / it.size.toFloat()).decimal()
+                        // Timeline calculation in newThread
+                        val now = System.currentTimeMillis()
+                        val oneDayMs = 86400_000L
+                        val timeGroups = linkedMapOf(
+                            getString(R.string.timeline_today) to 0,
+                            getString(R.string.timeline_yesterday) to 0,
+                            getString(R.string.timeline_this_week) to 0,
+                            getString(R.string.timeline_earlier) to 0
+                        )
+                        listData.forEach { bean ->
+                            val diff = now - bean.timestamp
+                            when {
+                                diff < oneDayMs -> timeGroups[getString(R.string.timeline_today)] = timeGroups[getString(R.string.timeline_today)]!! + 1
+                                diff < oneDayMs * 2 -> timeGroups[getString(R.string.timeline_yesterday)] = timeGroups[getString(R.string.timeline_yesterday)]!! + 1
+                                diff < oneDayMs * 7 -> timeGroups[getString(R.string.timeline_this_week)] = timeGroups[getString(R.string.timeline_this_week)]!! + 1
+                                else -> timeGroups[getString(R.string.timeline_earlier)] = timeGroups[getString(R.string.timeline_earlier)]!! + 1
+                            }
+                        }
+                        val maxCount = timeGroups.values.maxOrNull()?.takeIf { it > 0 } ?: 1
                         runOnUiThread {
                             cancel()
                             showDialog<DiaAppErrorsStatisticsBinding> {
@@ -111,25 +130,6 @@ class AppErrorsRecordActivity : BaseActivity<ActivityAppErrorsRecordBinding>() {
                                 binding.mostErrorsAppText.text = appNameOf(mostAppPackageName).ifBlank { mostAppPackageName }
                                 binding.mostErrorsTypeText.text = mostErrorsType
                                 binding.totalPptOfErrorsText.text = "$pptCount%"
-                                // Timeline statistics
-                                val now = System.currentTimeMillis()
-                                val oneDayMs = 86400_000L
-                                val timeGroups = linkedMapOf(
-                                    "Today" to 0,
-                                    "Yesterday" to 0,
-                                    "This week" to 0,
-                                    "Earlier" to 0
-                                )
-                                listData.forEach { bean ->
-                                    val diff = now - bean.timestamp
-                                    when {
-                                        diff < oneDayMs -> timeGroups["Today"] = timeGroups["Today"]!! + 1
-                                        diff < oneDayMs * 2 -> timeGroups["Yesterday"] = timeGroups["Yesterday"]!! + 1
-                                        diff < oneDayMs * 7 -> timeGroups["This week"] = timeGroups["This week"]!! + 1
-                                        else -> timeGroups["Earlier"] = timeGroups["Earlier"]!! + 1
-                                    }
-                                }
-                                val maxCount = timeGroups.values.maxOrNull()?.takeIf { it > 0 } ?: 1
 
                                 timeGroups.forEach { (label, count) ->
                                     val row = LinearLayout(context).apply {

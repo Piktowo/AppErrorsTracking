@@ -174,7 +174,7 @@
         android:layout_marginTop="15dp"
         android:layout_marginRight="8.5dp"
         android:layout_marginBottom="5dp"
-        android:text="Crash Timeline"
+        android:text="@string/crash_timeline"
         android:textSize="14sp"
         android:textStyle="bold" />
 

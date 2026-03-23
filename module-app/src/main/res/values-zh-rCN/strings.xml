@@ -168,4 +168,13 @@
     <string name="share_with_file">以文件方式分享异常堆栈</string>
     <string name="share_with_file_tip">使用文件的方式代替文本分享异常堆栈</string>
     <string name="about_module_extension">此模块使用 KavaRef 强力驱动。\n了解更多 https://github.com/HighCapable/KavaRef</string>
+    <string name="search_on_stackoverflow">在 StackOverflow 上搜索</string>
+    <string name="export_format">导出格式</string>
+    <string name="export_format_log">日志文件</string>
+    <string name="export_format_json">JSON 格式</string>
+    <string name="crash_timeline">崩溃时间分布</string>
+    <string name="timeline_today">今天</string>
+    <string name="timeline_yesterday">昨天</string>
+    <string name="timeline_this_week">本周</string>
+    <string name="timeline_earlier">更早</string>
 </resources>

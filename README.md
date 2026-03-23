@@ -65,6 +65,16 @@ Similar to **Bugly** to automatically collect errors, the system cannot obtain w
 
 - [x] Errors display function for multi-process apps
 
+- [x] Quick StackOverflow search for any exception directly from the detail page
+
+- [x] JSON format export support in addition to plain text log files
+
+- [x] Duplicate crash merging — same exception stacked as one record with occurrence count
+
+- [x] Crash timeline in statistics — breakdown by Today / Yesterday / This week / Earlier
+
+- [x] Per-app notification channel — mute crash notifications for individual apps from system settings
+
 ## Translation Contribution
 
 Contributions to this project are welcome to translate it into your country's language.

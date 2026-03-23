@@ -168,4 +168,13 @@
   <string name="verbose_crash_dispatch_log_tip">クラッシュ UI の分配の決定を Xposed/LSPosed ログに出力します。ダイアログが表示されない原因の調査に役立ちます。</string>
   <string name="share_with_file">ファイルでエラースタックを共有</string>
   <string name="share_with_file_tip">テキストの代わりにファイルを使用してエラースタックを共有します</string>
+  <string name="search_on_stackoverflow">StackOverflow で検索</string>
+  <string name="export_format">エクスポート形式</string>
+  <string name="export_format_log">ログファイル</string>
+  <string name="export_format_json">JSON 形式</string>
+  <string name="crash_timeline">クラッシュのタイムライン</string>
+  <string name="timeline_today">今日</string>
+  <string name="timeline_yesterday">昨日</string>
+  <string name="timeline_this_week">今週</string>
+  <string name="timeline_earlier">それ以前</string>
 </resources>
